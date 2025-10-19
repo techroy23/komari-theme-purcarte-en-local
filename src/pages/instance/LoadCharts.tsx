@@ -19,6 +19,7 @@ import { useLoadCharts } from "@/hooks/useLoadCharts";
 import { CustomTooltip } from "@/components/ui/tooltip";
 import { lableFormatter, loadChartTimeFormatter } from "@/utils/chartHelper";
 import type { RpcNodeStatus } from "@/types/rpc";
+import { useLocale } from "@/config/hooks";
 
 interface LoadChartsProps {
   node: NodeData;
@@ -31,6 +32,7 @@ const LoadCharts = memo(
   ({ node, hours, liveData, isOnline }: LoadChartsProps) => {
     const { loading, error, chartData, memoryChartData, isDataEmpty } =
       useLoadCharts(node, hours);
+    const { t } = useLocale();
 
     const chartDataLengthRef = useRef(0);
     chartDataLengthRef.current = chartData.length;
@@ -44,9 +46,11 @@ const LoadCharts = memo(
     const chartConfigs = [
       {
         id: "cpu",
-        title: "CPU",
+        title: t("chart.cpu"),
         type: "area",
-        value: liveData?.cpu ? `${liveData.cpu.toFixed(2)}%` : "-",
+        value: liveData?.cpu
+          ? `${liveData.cpu.toFixed(2)}%`
+          : t("node.notAvailable"),
         dataKey: "cpu",
         yAxisDomain: [0, 100],
         yAxisFormatter: (value: number, index: number) =>
@@ -54,11 +58,11 @@ const LoadCharts = memo(
         color: colors[0],
         data: chartData,
         tooltipFormatter: (value: number) => `${value.toFixed(2)}%`,
-        tooltipLabel: "CPU 使用率",
+        tooltipLabel: t("chart.cpuUsageTooltip"),
       },
       {
         id: "memory",
-        title: "内存",
+        title: t("chart.memory"),
         type: "area",
         value: (
           <Flex gap="0" direction="column" align="end">
@@ -67,16 +71,16 @@ const LoadCharts = memo(
                 ? `${formatBytes(liveData.ram)} / ${formatBytes(
                     node?.mem_total || 0
                   )}`
-                : "N/A"}
+                : t("node.notAvailable")}
             </label>
             <label>
               {node?.swap_total === 0
-                ? "OFF"
+                ? t("node.off")
                 : liveData?.swap
                 ? `${formatBytes(liveData.swap)} / ${formatBytes(
                     node?.swap_total || 0
                   )}`
-                : "N/A"}
+                : t("node.notAvailable")}
             </label>
           </Flex>
         ),
@@ -84,17 +88,17 @@ const LoadCharts = memo(
           {
             dataKey: "ram",
             color: colors[0],
-            tooltipLabel: "内存",
+            tooltipLabel: t("chart.memoryUsageTooltip"),
             tooltipFormatter: (value: number, raw: any) =>
               `${formatBytes(raw?.ram_raw || 0)} (${value.toFixed(0)}%)`,
           },
           {
             dataKey: "swap",
             color: colors[1],
-            tooltipLabel: "交换",
+            tooltipLabel: t("chart.swapUsageTooltip"),
             tooltipFormatter: (value: number, raw: any) =>
               node.swap_total === 0
-                ? "OFF"
+                ? t("node.off")
                 : `${formatBytes(raw?.swap_raw || 0)} (${value.toFixed(0)}%)`,
           },
         ],
@@ -105,13 +109,13 @@ const LoadCharts = memo(
       },
       {
         id: "disk",
-        title: "磁盘",
+        title: t("chart.disk"),
         type: "area",
         value: liveData?.disk
           ? `${formatBytes(liveData.disk)} / ${formatBytes(
               node?.disk_total || 0
             )}`
-          : "-",
+          : t("node.notAvailable"),
         dataKey: "disk",
         yAxisDomain: [0, node?.disk_total || 100],
         yAxisFormatter: (value: number, index: number) =>
@@ -119,17 +123,23 @@ const LoadCharts = memo(
         color: colors[0],
         data: chartData,
         tooltipFormatter: (value: number) => formatBytes(value),
-        tooltipLabel: "磁盘使用",
+        tooltipLabel: t("chart.diskUsageTooltip"),
       },
       {
         id: "network",
-        title: "网络",
+        title: t("chart.network"),
         type: "line",
         value: (
           <>
             <Flex gap="0" align="end" direction="column">
-              <span>↑ {formatBytes(liveData?.net_out || 0)}/s</span>
-              <span>↓ {formatBytes(liveData?.net_in || 0)}/s</span>
+              <span>
+                {t("node.uploadPrefix")}{" "}
+                {formatBytes(liveData?.net_out || 0, true)}
+              </span>
+              <span>
+                {t("node.downloadPrefix")}{" "}
+                {formatBytes(liveData?.net_in || 0, true)}
+              </span>
             </Flex>
           </>
         ),
@@ -137,14 +147,14 @@ const LoadCharts = memo(
           {
             dataKey: "net_in",
             color: colors[0],
-            tooltipLabel: "下载",
-            tooltipFormatter: (value: number) => `${formatBytes(value)}/s`,
+            tooltipLabel: t("chart.download"),
+            tooltipFormatter: (value: number) => `${formatBytes(value, true)}`,
           },
           {
             dataKey: "net_out",
             color: colors[3],
-            tooltipLabel: "上传",
-            tooltipFormatter: (value: number) => `${formatBytes(value)}/s`,
+            tooltipLabel: t("chart.upload"),
+            tooltipFormatter: (value: number) => `${formatBytes(value, true)}`,
           },
         ],
         yAxisFormatter: (value: number, index: number) =>
@@ -153,24 +163,28 @@ const LoadCharts = memo(
       },
       {
         id: "connections",
-        title: "连接数",
+        title: t("chart.connections"),
         type: "line",
         value: (
           <Flex gap="0" align="end" direction="column">
-            <span>TCP: {liveData?.connections}</span>
-            <span>UDP: {liveData?.connections_udp}</span>
+            <span>
+              {t("chart.tcpPrefix")} {liveData?.connections}
+            </span>
+            <span>
+              {t("chart.udpPrefix")} {liveData?.connections_udp}
+            </span>
           </Flex>
         ),
         series: [
           {
             dataKey: "connections",
             color: colors[0],
-            tooltipLabel: "TCP 连接",
+            tooltipLabel: t("chart.tcpConnections"),
           },
           {
             dataKey: "connections_udp",
             color: colors[1],
-            tooltipLabel: "UDP 连接",
+            tooltipLabel: t("chart.udpConnections"),
           },
         ],
         yAxisFormatter: (value: number, index: number) =>
@@ -179,15 +193,15 @@ const LoadCharts = memo(
       },
       {
         id: "process",
-        title: "进程数",
+        title: t("chart.processes"),
         type: "line",
-        value: liveData?.process || "-",
+        value: liveData?.process || t("node.notAvailable"),
         dataKey: "process",
         color: colors[0],
         yAxisFormatter: (value: number, index: number) =>
           index !== 0 ? `${value}` : "",
         data: chartData,
-        tooltipLabel: "进程数",
+        tooltipLabel: t("chart.processesTooltip"),
       },
     ];
 
@@ -317,7 +331,7 @@ const LoadCharts = memo(
       <div className="relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center purcarte-blur rounded-lg z-10">
-            <Loading text="正在加载图表数据..." />
+            <Loading text={t("chart.loadingData")} />
           </div>
         )}
         {error && (
@@ -328,14 +342,14 @@ const LoadCharts = memo(
         {!isOnline && !loading && hours === 0 && (
           <div className="absolute inset-0 flex items-center justify-center purcarte-blur rounded-lg z-10">
             <p className="text-lg font-semibold">
-              节点已离线，无法获取实时数据
+              {t("chart.nodeOfflineCannotFetchLiveData")}
             </p>
           </div>
         )}
         {isDataEmpty && !loading && hours > 0 && (
           <div className="absolute inset-0 flex items-center justify-center purcarte-blur rounded-lg z-10">
             <p className="text-lg font-semibold">
-              离线时间超过 {hours} 小时，未找到任何数据
+              {t("chart.offlineForTooLong", { hours })}
             </p>
           </div>
         )}

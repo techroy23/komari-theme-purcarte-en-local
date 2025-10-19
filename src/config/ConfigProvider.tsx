@@ -1,9 +1,11 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState, useMemo } from "react";
 import type { PublicInfo } from "@/types/node.d";
 import { ConfigContext } from "./ConfigContext";
 import { DEFAULT_CONFIG, type ConfigOptions } from "./default";
 import { apiService, getWsService } from "@/services/api";
 import Loading from "@/components/loading";
+import { defaultTexts, otherTexts } from "./locales";
+import { mergeTexts, deepMerge } from "@/utils/localeUtils";
 
 // 配置提供者属性类型
 interface ConfigProviderProps {
@@ -78,6 +80,13 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     initialize();
   }, []);
 
+  const texts = useMemo(() => {
+    const baseTexts = config?.customTexts
+      ? mergeTexts(defaultTexts, config.customTexts)
+      : defaultTexts;
+    return deepMerge(baseTexts, otherTexts);
+  }, [config?.customTexts]);
+
   if (!isLoaded || !config) {
     return (
       <Loading text="加载配置中..." className={!loading ? "fade-out" : ""} />
@@ -85,7 +94,8 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   }
 
   return (
-    <ConfigContext.Provider value={{ ...config, publicSettings, siteStatus }}>
+    <ConfigContext.Provider
+      value={{ ...config, publicSettings, siteStatus, texts }}>
       {children}
     </ConfigContext.Provider>
   );

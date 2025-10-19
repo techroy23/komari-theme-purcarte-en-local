@@ -6,6 +6,7 @@ import { CurrentTimeChip, StatChip } from "./StatChips";
 import { GroupSelector } from "./GroupSelector";
 import { SortToggleMenu } from "./SortToggleMenu";
 import { StatsToggleMenu } from "./StatsToggleMenu";
+import { useLocale } from "@/config/hooks";
 import type { StatsBarProps, SortKey } from "./types";
 export type { StatsBarProps };
 
@@ -66,6 +67,7 @@ export const StatsBar = (props: StatsBarProps) => {
     enableSortControl,
   } = useAppConfig();
   const isMobile = useIsMobile();
+  const { t } = useLocale();
 
   const resolvedStats = useMemo<StatEntry[]>(() => {
     const getLabel = (compactLabel: string, fullLabel: string) =>
@@ -75,26 +77,31 @@ export const StatsBar = (props: StatsBarProps) => {
     if (displayOptions.currentOnline) {
       entries.push({
         key: "currentOnline",
-        label: getLabel("当前在线", "当前在线"),
+        label: getLabel(
+          t("statsBar.currentOnline"),
+          t("statsBar.currentOnline")
+        ),
         lines: [loading ? "..." : `${stats.onlineCount} / ${stats.totalCount}`],
       });
     }
     if (displayOptions.regionOverview) {
       entries.push({
         key: "regionOverview",
-        label: getLabel("点亮地区", "点亮地区"),
+        label: getLabel(t("statsBar.region"), t("statsBar.region")),
         lines: [loading ? "..." : String(stats.uniqueRegions)],
       });
     }
     if (displayOptions.trafficOverview) {
       entries.push({
         key: "trafficOverview",
-        label: getLabel("流量", "流量概览"),
+        label: getLabel(t("statsBar.trafficShort"), t("statsBar.traffic")),
         lines: loading
           ? ["..."]
           : [
-              `↑ ${formatBytes(stats.totalTrafficUp)}`,
-              `↓ ${formatBytes(stats.totalTrafficDown)}`,
+              `${t("node.uploadPrefix")} ${formatBytes(stats.totalTrafficUp)}`,
+              `${t("node.downloadPrefix")} ${formatBytes(
+                stats.totalTrafficDown
+              )}`,
             ],
         isLabelVertical: !isMobile && isShowStatsInHeader,
         textLeft: true,
@@ -103,19 +110,26 @@ export const StatsBar = (props: StatsBarProps) => {
     if (displayOptions.networkSpeed) {
       entries.push({
         key: "networkSpeed",
-        label: getLabel("网速", "网络速率"),
+        label: getLabel(
+          t("statsBar.networkSpeedShort"),
+          t("statsBar.networkSpeed")
+        ),
         lines: loading
           ? ["..."]
           : [
-              `↑ ${formatBytes(stats.currentSpeedUp)}/s`,
-              `↓ ${formatBytes(stats.currentSpeedDown)}/s`,
+              `${t("node.uploadPrefix")} ${formatBytes(
+                stats.currentSpeedUp
+              )}/s`,
+              `${t("node.downloadPrefix")} ${formatBytes(
+                stats.currentSpeedDown
+              )}/s`,
             ],
         isLabelVertical: !isMobile && isShowStatsInHeader,
         textLeft: true,
       });
     }
     return entries;
-  }, [displayOptions, loading, stats, isMobile, isShowStatsInHeader]);
+  }, [displayOptions, loading, stats, isMobile, isShowStatsInHeader, t]);
 
   const hasVisibleStats = Object.values(displayOptions).some(Boolean);
 
@@ -202,7 +216,7 @@ export const StatsBar = (props: StatsBarProps) => {
           </>
         ) : (
           <span className="text-xs text-secondary-foreground">
-            统计信息已隐藏
+            {t("statsBar.statsHidden")}
           </span>
         )}
       </div>

@@ -25,6 +25,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLocale } from "@/config/hooks";
 
 import { StatsBar } from "../sections/StatsBar";
 import type { StatsBarProps } from "../sections/StatsBar";
@@ -50,6 +51,7 @@ export const Header = (props: HeaderProps) => {
     isShowStatsInHeader,
   } = useAppConfig();
   const isMobile = useIsMobile();
+  const { t } = useLocale();
 
   useEffect(() => {
     if (titleText) {
@@ -103,7 +105,7 @@ export const Header = (props: HeaderProps) => {
                         <div className="p-2">
                           <Input
                             type="search"
-                            placeholder="搜索服务器..."
+                            placeholder={t("search.placeholder")}
                             className="w-full"
                             value={searchTerm}
                             onChange={(
@@ -136,22 +138,22 @@ export const Header = (props: HeaderProps) => {
                           ) : (
                             <Table2 className="size-4 mr-2 text-primary" />
                           )}
-                          <span>切换视图</span>
+                          <span>{t("header.toggleView")}</span>
                         </DropdownMenuSubTrigger>
                         <DropdownMenuSubContent className="purcarte-blur border-(--accent-4)/50 rounded-xl">
                           <DropdownMenuItem onClick={() => setViewMode("grid")}>
                             <Grid3X3 className="size-4 mr-2 text-primary" />
-                            <span>网格视图</span>
+                            <span>{t("header.grid")}</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => setViewMode("compact")}>
                             <Rows3 className="size-4 mr-2 text-primary" />
-                            <span>紧凑视图</span>
+                            <span>{t("header.compact")}</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => setViewMode("table")}>
                             <Table2 className="size-4 mr-2 text-primary" />
-                            <span>表格视图</span>
+                            <span>{t("header.table")}</span>
                           </DropdownMenuItem>
                         </DropdownMenuSubContent>
                       </DropdownMenuSub>
@@ -164,23 +166,23 @@ export const Header = (props: HeaderProps) => {
                           ) : (
                             <SunMoon className="size-4 mr-2 text-primary" />
                           )}
-                          <span>切换主题</span>
+                          <span>{t("header.toggleTheme")}</span>
                         </DropdownMenuSubTrigger>
                         <DropdownMenuSubContent className="purcarte-blur border-(--accent-4)/50 rounded-xl">
                           <DropdownMenuItem
                             onClick={() => setAppearance("light")}>
                             <Sun className="size-4 mr-2 text-primary" />
-                            <span>浅色模式</span>
+                            <span>{t("header.lightMode")}</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => setAppearance("dark")}>
                             <Moon className="size-4 mr-2 text-primary" />
-                            <span>深色模式</span>
+                            <span>{t("header.darkMode")}</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => setAppearance("system")}>
                             <SunMoon className="size-4 mr-2 text-primary" />
-                            <span>跟随系统</span>
+                            <span>{t("header.systemMode")}</span>
                           </DropdownMenuItem>
                         </DropdownMenuSubContent>
                       </DropdownMenuSub>
@@ -192,7 +194,7 @@ export const Header = (props: HeaderProps) => {
                             rel="noopener noreferrer"
                             className="flex items-center">
                             <CircleUserIcon className="size-4 mr-2 text-primary" />
-                            <span>管理员</span>
+                            <span>{t("header.admin")}</span>
                           </a>
                         </DropdownMenuItem>
                       )}
@@ -207,7 +209,7 @@ export const Header = (props: HeaderProps) => {
                     }`}>
                     <Input
                       type="search"
-                      placeholder="搜索服务器..."
+                      placeholder={t("search.placeholder")}
                       className={`transition-all duration-300 ease-in-out ${
                         !isSearchOpen && "invisible"
                       }`}
@@ -246,15 +248,15 @@ export const Header = (props: HeaderProps) => {
                       className="purcarte-blur mt-[.5rem] border-(--accent-4)/50 rounded-xl">
                       <DropdownMenuItem onClick={() => setViewMode("grid")}>
                         <Grid3X3 className="size-4 mr-2 text-primary" />
-                        <span>网格视图</span>
+                        <span>{t("header.grid")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setViewMode("compact")}>
                         <Rows3 className="size-4 mr-2 text-primary" />
-                        <span>紧凑视图</span>
+                        <span>{t("header.compact")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setViewMode("table")}>
                         <Table2 className="size-4 mr-2 text-primary" />
-                        <span>表格视图</span>
+                        <span>{t("header.table")}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -275,15 +277,15 @@ export const Header = (props: HeaderProps) => {
                       className="purcarte-blur mt-[.5rem] border-(--accent-4)/50 rounded-xl">
                       <DropdownMenuItem onClick={() => setAppearance("light")}>
                         <Sun className="size-4 mr-2 text-primary" />
-                        <span>浅色模式</span>
+                        <span>{t("header.lightMode")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setAppearance("dark")}>
                         <Moon className="size-4 mr-2 text-primary" />
-                        <span>深色模式</span>
+                        <span>{t("header.darkMode")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setAppearance("system")}>
                         <SunMoon className="size-4 mr-2 text-primary" />
-                        <span>跟随系统</span>
+                        <span>{t("header.systemMode")}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -323,22 +325,22 @@ export const Header = (props: HeaderProps) => {
                         ) : (
                           <SunMoon className="size-4 mr-2 text-primary" />
                         )}
-                        <span>切换主题</span>
+                        <span>{t("header.toggleTheme")}</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent className="purcarte-blur border-(--accent-4)/50 rounded-xl">
                         <DropdownMenuItem
                           onClick={() => setAppearance("light")}>
                           <Sun className="size-4 mr-2 text-primary" />
-                          <span>浅色模式</span>
+                          <span>{t("header.lightMode")}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setAppearance("dark")}>
                           <Moon className="size-4 mr-2 text-primary" />
-                          <span>深色模式</span>
+                          <span>{t("header.darkMode")}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setAppearance("system")}>
                           <SunMoon className="size-4 mr-2 text-primary" />
-                          <span>跟随系统</span>
+                          <span>{t("header.systemMode")}</span>
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
@@ -350,7 +352,7 @@ export const Header = (props: HeaderProps) => {
                           rel="noopener noreferrer"
                           className="flex items-center">
                           <CircleUserIcon className="size-4 mr-2 text-primary" />
-                          <span>管理员</span>
+                          <span>{t("header.admin")}</span>
                         </a>
                       </DropdownMenuItem>
                     )}
@@ -375,15 +377,15 @@ export const Header = (props: HeaderProps) => {
                       className="purcarte-blur mt-[.5rem] border-(--accent-4)/50 rounded-xl">
                       <DropdownMenuItem onClick={() => setAppearance("light")}>
                         <Sun className="size-4 mr-2 text-primary" />
-                        <span>浅色模式</span>
+                        <span>{t("header.lightMode")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setAppearance("dark")}>
                         <Moon className="size-4 mr-2 text-primary" />
-                        <span>深色模式</span>
+                        <span>{t("header.darkMode")}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setAppearance("system")}>
                         <SunMoon className="size-4 mr-2 text-primary" />
-                        <span>跟随系统</span>
+                        <span>{t("header.systemMode")}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -5,6 +5,7 @@ import { formatBytes, formatUptime, formatTrafficLimit } from "@/utils";
 import { CircleProgress } from "@/components/ui/progress-circle";
 import { useNodeCommons } from "@/hooks/useNodeCommons";
 import { useLiveData } from "@/contexts/LiveDataContext";
+import { useLocale } from "@/config/hooks";
 
 interface InfoItemProps {
   label: string;
@@ -34,60 +35,70 @@ const Instance = memo(({ node }: InstanceProps) => {
   );
 
   const { stats, isOnline, trafficPercentage } = useNodeCommons(nodeWithStats);
+  const { t } = useLocale();
 
   const swapValue = useMemo(() => {
-    if (node.swap_total === 0) return "OFF";
+    if (node.swap_total === 0) return t("node.off");
     if (stats && isOnline) {
       return `${formatBytes(stats.swap)} / ${formatBytes(node.swap_total)}`;
     }
-    return `N/A / ${formatBytes(node.swap_total)}`;
-  }, [node.swap_total, stats, isOnline]);
+    return `${t("node.notAvailable")} / ${formatBytes(node.swap_total)}`;
+  }, [node.swap_total, stats, isOnline, t]);
 
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle>详细信息</CardTitle>
+        <CardTitle>{t("instancePage.title")}</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 @md:grid-cols-3 @lg:grid-cols-4 gap-3">
         <InfoItem
           className="@md:col-span-2"
-          label="CPU"
+          label={t("instancePage.cpu")}
           value={`${node.cpu_name} (x${node.cpu_cores})`}
         />
-        <InfoItem label="架构" value={node.arch} />
-        <InfoItem label="虚拟化" value={node.virtualization} />
-        <InfoItem label="GPU" value={node.gpu_name || "N/A"} />
-        <InfoItem label="操作系统" value={node.os} />
+        <InfoItem label={t("instancePage.architecture")} value={node.arch} />
         <InfoItem
-          label="内存"
+          label={t("instancePage.virtualization")}
+          value={node.virtualization}
+        />
+        <InfoItem
+          label={t("instancePage.gpu")}
+          value={node.gpu_name || t("node.notAvailable")}
+        />
+        <InfoItem label={t("instancePage.os")} value={node.os} />
+        <InfoItem
+          label={t("instancePage.mem")}
           value={
             stats && isOnline
               ? `${formatBytes(stats.ram)} / ${formatBytes(node.mem_total)}`
-              : `N/A / ${formatBytes(node.mem_total)}`
+              : `${t("node.notAvailable")} / ${formatBytes(node.mem_total)}`
           }
         />
-        <InfoItem label="交换内存" value={swapValue} />
+        <InfoItem label={t("instancePage.swap")} value={swapValue} />
         <InfoItem
-          label="磁盘"
+          label={t("instancePage.disk")}
           value={
             stats && isOnline
               ? `${formatBytes(stats.disk)} / ${formatBytes(node.disk_total)}`
-              : `N/A / ${formatBytes(node.disk_total)}`
+              : `${t("node.notAvailable")} / ${formatBytes(node.disk_total)}`
           }
         />
         <InfoItem
-          label="实时网络"
+          label={t("instancePage.realtimeNetwork")}
           value={
             stats && isOnline
-              ? `↑ ${formatBytes(stats.net_out, true)} ↓ ${formatBytes(
+              ? `${t("node.uploadPrefix")} ${formatBytes(
+                  stats.net_out,
+                  true
+                )} ${t("node.downloadPrefix")} ${formatBytes(
                   stats.net_in,
                   true
                 )}`
-              : "N/A"
+              : t("node.notAvailable")
           }
         />
         <InfoItem
-          label="总流量"
+          label={t("instancePage.totalTraffic")}
           value={
             <div className="flex items-center gap-2">
               {node.traffic_limit !== 0 && isOnline && stats && (
@@ -102,10 +113,12 @@ const Instance = memo(({ node }: InstanceProps) => {
               <div>
                 <p>
                   {stats && isOnline
-                    ? `↑ ${formatBytes(stats.net_total_up)} ↓ ${formatBytes(
+                    ? `${t("node.uploadPrefix")} ${formatBytes(
+                        stats.net_total_up
+                      )} ${t("node.downloadPrefix")} ${formatBytes(
                         stats.net_total_down
                       )}`
-                    : "N/A"}
+                    : t("node.notAvailable")}
                 </p>
                 <p>
                   {formatTrafficLimit(
@@ -118,20 +131,25 @@ const Instance = memo(({ node }: InstanceProps) => {
           }
         />
         <InfoItem
-          label="负载"
+          label={t("instancePage.load")}
           value={
             stats && isOnline
               ? `${stats.load.toFixed(2)} | ${stats.load5.toFixed(
                   2
                 )} | ${stats.load15.toFixed(2)}`
-              : "N/A"
+              : t("node.notAvailable")
           }
         />
-        <InfoItem label="运行时间" value={formatUptime(stats?.uptime || 0)} />
         <InfoItem
-          label="最后上报"
+          label={t("instancePage.runtime")}
+          value={formatUptime(stats?.uptime || 0)}
+        />
+        <InfoItem
+          label={t("instancePage.lastUpdated")}
           value={
-            stats && isOnline ? new Date(stats.time).toLocaleString() : "N/A"
+            stats && isOnline
+              ? new Date(stats.time).toLocaleString()
+              : t("node.notAvailable")
           }
         />
       </CardContent>

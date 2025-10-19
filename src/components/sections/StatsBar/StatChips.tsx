@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { cn } from "@/utils";
+import { useLocale } from "@/config/hooks";
 
 export const StatChip = memo(
   ({
@@ -64,6 +65,7 @@ export const StatChip = memo(
 export const CurrentTimeChip = memo(
   ({ isInHeader, isMobile }: { isInHeader?: boolean; isMobile: boolean }) => {
     const [time, setTime] = useState(() => new Date());
+    const { t } = useLocale();
 
     useEffect(() => {
       const timer = setInterval(() => setTime(new Date()), 1000);
@@ -73,7 +75,7 @@ export const CurrentTimeChip = memo(
     return (
       <StatChip
         key="currentTime"
-        label={"当前时间"}
+        label={t("statsBar.currentTime")}
         lines={[time.toLocaleTimeString()]}
         isInHeader={isInHeader}
         isMobile={isMobile}

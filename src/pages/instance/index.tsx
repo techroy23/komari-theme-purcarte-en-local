@@ -12,6 +12,7 @@ import Loading from "@/components/loading";
 import Flag from "@/components/sections/Flag";
 import { useAppConfig } from "@/config";
 import { useIsMobile } from "@/hooks/useMobile";
+import { useLocale } from "@/config/hooks";
 
 const InstancePage = () => {
   const { uuid } = useParams<{ uuid: string }>();
@@ -33,6 +34,7 @@ const InstancePage = () => {
   const { enableInstanceDetail, enablePingChart, publicSettings } =
     useAppConfig();
   const isMobile = useIsMobile();
+  const { t } = useLocale();
 
   const maxRecordPreserveTime = publicSettings?.record_preserve_time || 0; // 默认0表示关闭
   const maxPingRecordPreserveTime =
@@ -40,14 +42,14 @@ const InstancePage = () => {
 
   const timeRanges = useMemo(() => {
     return [
-      { label: "实时", hours: 0 },
-      { label: "1小时", hours: 1 },
-      { label: "4小时", hours: 4 },
-      { label: "1天", hours: 24 },
-      { label: "7天", hours: 168 },
-      { label: "30天", hours: 720 },
+      { label: t("instancePage.live"), hours: 0 },
+      { label: t("instancePage.hours", { count: 1 }), hours: 1 },
+      { label: t("instancePage.hours", { count: 4 }), hours: 4 },
+      { label: t("instancePage.days", { count: 1 }), hours: 24 },
+      { label: t("instancePage.days", { count: 7 }), hours: 168 },
+      { label: t("instancePage.days", { count: 30 }), hours: 720 },
     ];
-  }, []);
+  }, [t]);
 
   const pingTimeRanges = useMemo(() => {
     const filtered = timeRanges.filter(
@@ -56,13 +58,13 @@ const InstancePage = () => {
 
     if (maxPingRecordPreserveTime > 720) {
       filtered.push({
-        label: `${maxPingRecordPreserveTime}小时`,
+        label: t("instancePage.hours", { count: maxPingRecordPreserveTime }),
         hours: maxPingRecordPreserveTime,
       });
     }
 
     return filtered;
-  }, [timeRanges, maxPingRecordPreserveTime]);
+  }, [timeRanges, maxPingRecordPreserveTime, t]);
 
   const loadTimeRanges = useMemo(() => {
     const filtered = timeRanges.filter(
@@ -70,13 +72,13 @@ const InstancePage = () => {
     );
     if (maxRecordPreserveTime > 720) {
       filtered.push({
-        label: `${maxRecordPreserveTime}小时`,
+        label: t("instancePage.hours", { count: maxRecordPreserveTime }),
         hours: maxRecordPreserveTime,
       });
     }
 
     return filtered;
-  }, [timeRanges, maxRecordPreserveTime]);
+  }, [timeRanges, maxRecordPreserveTime, t]);
 
   useEffect(() => {
     if (Array.isArray(staticNodes)) {
@@ -142,13 +144,13 @@ const InstancePage = () => {
     if (nodesLoading) {
       return (
         <div className="flex items-center justify-center h-full">
-          <Loading text="正在获取节点信息..." />
+          <Loading text={t("instancePage.loadingNodeInfo")} />
         </div>
       );
     }
     return (
       <div className="flex items-center justify-center h-full">
-        未找到该节点
+        {t("instancePage.nodeNotFound")}
       </div>
     );
   }
@@ -157,7 +159,7 @@ const InstancePage = () => {
     return (
       <div className="flex items-center justify-center h-full">
         <Loading
-          text="正在进入节点详情..."
+          text={t("instancePage.enteringNodeDetails")}
           className={!nodesLoading ? "fade-out" : ""}
         />
       </div>
@@ -180,7 +182,7 @@ const InstancePage = () => {
             <span className="text-xl md:text-2xl font-bold">{node.name}</span>
           </div>
           <span className="text-sm text-secondary-foreground flex-shrink-0">
-            {isOnline ? "在线" : "离线"}
+            {isOnline ? t("node.online") : t("node.offline")}
           </span>
         </div>
       </div>
@@ -194,14 +196,14 @@ const InstancePage = () => {
               variant={chartType === "load" ? "default" : "ghost"}
               size="sm"
               onClick={() => handleChartTypeChange("load")}>
-              负载
+              {t("instancePage.optionLoad")}
             </Button>
             {enablePingChart && (
               <Button
                 variant={chartType === "ping" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => handleChartTypeChange("ping")}>
-                延迟
+                {t("instancePage.optionPing")}
               </Button>
             )}
           </div>
@@ -249,7 +251,7 @@ const InstancePage = () => {
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-96">
-              <Loading text="正在加载图表..." />
+              <Loading text={t("chart.loading")} />
             </div>
           }>
           {displayedChartType === "load" && staticNode ? (

@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/useMobile";
+import { useLocale } from "@/config/hooks";
 
 interface HomePageProps {
   searchTerm: string;
@@ -52,13 +53,14 @@ const HomePage: React.FC<HomePageProps> = ({
     isShowStatsInHeader,
     mergeGroupsWithStats,
   } = useAppConfig();
+  const { t } = useLocale();
 
   const isMobile = useIsMobile();
 
   const hasSearchTerm = searchTerm.trim().length > 0;
 
   if (loading) {
-    return <Loading text="正在努力获取数据中..." />;
+    return <Loading text={t("homePage.loadingData")} />;
   }
 
   const renderContent = () => {
@@ -113,7 +115,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
       {enableGroupedBar && !mergeGroupsWithStats && (
         <div className="flex purcarte-blur theme-card-style overflow-auto whitespace-nowrap overflow-x-auto items-center min-w-[300px] text-primary space-x-4 px-4 my-4">
-          <span>分组</span>
+          <span>{t("group.name")}</span>
           {groups?.map((group: string) => (
             <Button
               key={group}
@@ -135,29 +137,29 @@ const HomePage: React.FC<HomePageProps> = ({
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">
                   {hasSearchTerm
-                    ? "Not Found"
+                    ? t("search.notFound")
                     : error
-                    ? "获取节点数据失败"
-                    : "暂无节点数据"}
+                    ? t("homePage.errorFetchingNodes")
+                    : t("homePage.noNodes")}
                 </CardTitle>
                 <CardDescription>
                   {hasSearchTerm
-                    ? "请尝试更改筛选条件"
+                    ? t("search.tryChangingFilters")
                     : error
-                    ? "获取节点数据失败，请重试"
-                    : "请先通过管理端添加节点"}
+                    ? t("homePage.retryFetchingNodes")
+                    : t("homePage.addNodesInAdmin")}
                 </CardDescription>
               </CardHeader>
               <CardFooter>
                 {hasSearchTerm ? (
                   <Button onClick={() => setSearchTerm("")} className="w-full">
-                    清空搜索
+                    {t("search.clear")}
                   </Button>
                 ) : error ? (
                   <Button
                     onClick={() => void refreshNodes()}
                     className="w-full">
-                    重试
+                    {t("search.retry")}
                   </Button>
                 ) : (
                   <Button
@@ -165,7 +167,7 @@ const HomePage: React.FC<HomePageProps> = ({
                       window.open("/admin", "_blank", "noopener,noreferrer")
                     }
                     className="w-full">
-                    添加节点
+                    {t("homePage.addNode")}
                   </Button>
                 )}
               </CardFooter>

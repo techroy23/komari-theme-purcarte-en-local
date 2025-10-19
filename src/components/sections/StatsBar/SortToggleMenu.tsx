@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ArrowDownUp } from "lucide-react";
 import { cn } from "@/utils";
 import type { StatsBarProps } from "./types";
+import { useLocale } from "@/config/hooks";
 
 export const SortToggleMenu = memo(
   ({
@@ -18,14 +19,15 @@ export const SortToggleMenu = memo(
     sortKey,
     sortDirection,
   }: Pick<StatsBarProps, "onSort" | "sortKey" | "sortDirection">) => {
+    const { t } = useLocale();
     const sortOptions: {
       key: "trafficUp" | "trafficDown" | "speedUp" | "speedDown";
       label: string;
     }[] = [
-      { key: "trafficUp", label: "按上传流量" },
-      { key: "trafficDown", label: "按下载流量" },
-      { key: "speedUp", label: "按上传速率" },
-      { key: "speedDown", label: "按下载速率" },
+      { key: "trafficUp", label: t("sort.trafficUp") },
+      { key: "trafficDown", label: t("sort.trafficDown") },
+      { key: "speedUp", label: t("sort.speedUp") },
+      { key: "speedDown", label: t("sort.speedDown") },
     ];
 
     return (
@@ -39,7 +41,7 @@ export const SortToggleMenu = memo(
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>排序方式</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("sort.title")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {sortOptions.map(({ key, label }) => (
             <DropdownMenuItem
@@ -62,7 +64,7 @@ export const SortToggleMenu = memo(
           <DropdownMenuItem
             className="flex items-center justify-between cursor-pointer"
             onSelect={() => onSort?.(null, "desc")}>
-            重置排序
+            {t("sort.reset")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

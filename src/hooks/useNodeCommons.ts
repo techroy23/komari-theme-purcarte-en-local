@@ -6,6 +6,7 @@ import { useNodeData } from "@/contexts/NodeDataContext";
 import { useLiveData } from "@/contexts/LiveDataContext";
 import type { NodeDataContextType } from "@/contexts/NodeDataContext";
 import type { LiveDataContextType } from "@/contexts/LiveDataContext";
+import { useLocale } from "@/config/hooks";
 
 type SortKey = "trafficUp" | "trafficDown" | "speedUp" | "speedDown" | null;
 type SortOrder = "asc" | "desc";
@@ -17,7 +18,8 @@ export const useNodeListCommons = (searchTerm: string) => {
     getGroups,
   } = useNodeData() as NodeDataContextType;
   const { liveData } = useLiveData() as LiveDataContextType;
-  const [selectedGroup, setSelectedGroup] = useState("所有");
+  const { t } = useLocale();
+  const [selectedGroup, setSelectedGroup] = useState(t("group.all"));
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
@@ -41,13 +43,16 @@ export const useNodeListCommons = (searchTerm: string) => {
     });
   }, [staticNodes, liveData]);
 
-  const groups = useMemo(() => ["所有", ...getGroups()], [getGroups]);
+  const groups = useMemo(
+    () => [t("group.all"), ...getGroups()],
+    [getGroups, t]
+  );
 
   const filteredNodes = useMemo(() => {
     let nodes = combinedNodes
       .filter(
         (node: NodeData & { stats?: any }) =>
-          selectedGroup === "所有" || node.group === selectedGroup
+          selectedGroup === t("group.all") || node.group === selectedGroup
       )
       .filter((node: NodeData) =>
         node.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,7 +80,7 @@ export const useNodeListCommons = (searchTerm: string) => {
     }
 
     return nodes;
-  }, [combinedNodes, selectedGroup, searchTerm, sortKey, sortOrder]);
+  }, [combinedNodes, selectedGroup, searchTerm, sortKey, sortOrder, t]);
 
   const stats = useMemo(() => {
     return {
@@ -116,6 +121,7 @@ export const useNodeListCommons = (searchTerm: string) => {
 
 export const useNodeCommons = (node: NodeData & { stats?: any }) => {
   const { stats } = node;
+  const { t } = useLocale();
   const isOnline = stats ? stats.online : false;
   const price = formatPrice(node.price, node.currency, node.billing_cycle);
 
@@ -138,7 +144,7 @@ export const useNodeCommons = (node: NodeData & { stats?: any }) => {
       ? `${stats.load.toFixed(2)} | ${stats.load5.toFixed(
           2
         )} | ${stats.load15.toFixed(2)}`
-      : "N/A";
+      : t("node.notAvailable");
 
   const daysLeft =
     node.expired_at && new Date(node.expired_at).getTime() > 0
@@ -150,29 +156,30 @@ export const useNodeCommons = (node: NodeData & { stats?: any }) => {
 
   let daysLeftTag = null;
   if (daysLeft !== null) {
+    const daysLeftText = t("node.daysLeft", { daysLeft: daysLeft });
     if (daysLeft < 0) {
-      daysLeftTag = "已过期<red>";
+      daysLeftTag = `${daysLeftText}<red>`;
     } else if (daysLeft <= 7) {
-      daysLeftTag = `余 ${daysLeft} 天<red>`;
+      daysLeftTag = `${daysLeftText}<red>`;
     } else if (daysLeft <= 15) {
-      daysLeftTag = `余 ${daysLeft} 天<orange>`;
+      daysLeftTag = `${daysLeftText}<orange>`;
     } else if (daysLeft < 36500) {
-      daysLeftTag = `余 ${daysLeft} 天<green>`;
+      daysLeftTag = `${daysLeftText}<green>`;
     } else {
-      daysLeftTag = "长期<green>";
+      daysLeftTag = `${t("node.longTerm")}<green>`;
     }
   }
 
   const expired_at =
     daysLeft !== null && daysLeft > 36500
-      ? "长期"
+      ? t("node.longTerm")
       : node.expired_at && new Date(node.expired_at).getTime() > 0
       ? new Date(node.expired_at).toLocaleDateString(undefined, {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
         })
-      : "未设置";
+      : t("node.notSet");
 
   const tagList = [
     ...(price ? [price] : []),

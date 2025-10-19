@@ -20,6 +20,7 @@ import { useAppConfig } from "@/config";
 import { useState, useEffect } from "react";
 import Instance from "@/pages/instance/Instance";
 import PingChart from "@/pages/instance/PingChart";
+import { useLocale } from "@/config/hooks";
 
 interface NodeDetailModalProps {
   node: NodeData;
@@ -41,6 +42,7 @@ const NodeDetailModal = ({ node, onClose }: NodeDetailModalProps) => {
   };
 
   const { pingChartTimeInPreview } = useAppConfig();
+  const { t } = useLocale();
 
   return (
     <div
@@ -54,7 +56,9 @@ const NodeDetailModal = ({ node, onClose }: NodeDetailModalProps) => {
         }`}
         onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-2 h-full">
-          <h2 className="text-xl font-bold">{node.name} Details</h2>
+          <h2 className="text-xl font-bold">
+            {t("node.details", { name: node.name })}
+          </h2>
           <button onClick={handleClose}>
             <X className="h-6 w-6" />
           </button>
@@ -116,6 +120,7 @@ export const NodeCompact = ({ node, onShowDetails }: NodeCompactProps) => {
     load,
     expired_at,
   } = useNodeCommons(node);
+  const { t } = useLocale();
 
   return (
     <Card
@@ -170,22 +175,52 @@ export const NodeCompact = ({ node, onShowDetails }: NodeCompactProps) => {
           <div className="flex items-center col-span-1">
             <GaugeIcon className="size-5 text-(--accent-11) mr-2" />
             <div>
-              <div>↑ {stats ? formatBytes(stats.net_out, true) : "N/A"}</div>
-              <div>↓ {stats ? formatBytes(stats.net_in, true) : "N/A"}</div>
+              <div>
+                {t("node.uploadPrefix")}{" "}
+                {stats
+                  ? formatBytes(stats.net_out, true)
+                  : t("node.notAvailable")}
+              </div>
+              <div>
+                {t("node.downloadPrefix")}{" "}
+                {stats
+                  ? formatBytes(stats.net_in, true)
+                  : t("node.notAvailable")}
+              </div>
             </div>
           </div>
           <div className="flex items-center col-span-1">
             <ArrowUpDownIcon className="size-5 text-(--accent-11) mr-2" />
             <div>
-              <div>↑ {stats ? formatBytes(stats.net_total_up) : "N/A"}</div>
-              <div>↓ {stats ? formatBytes(stats.net_total_down) : "N/A"}</div>
+              <div>
+                {t("node.uploadPrefix")}{" "}
+                {stats
+                  ? formatBytes(stats.net_total_up)
+                  : t("node.notAvailable")}
+              </div>
+              <div>
+                {t("node.downloadPrefix")}{" "}
+                {stats
+                  ? formatBytes(stats.net_total_down)
+                  : t("node.notAvailable")}
+              </div>
             </div>
           </div>
         </div>
         <div className="flex grid grid-cols-2">
-          <span className="col-span-1">到期: {expired_at}</span>
           <span className="col-span-1">
-            {isOnline && stats ? `在线: ${formatUptime(stats.uptime)}` : "离线"}
+            <span className="mr-1">{t("node.expiredAt")}</span>
+            <span>{expired_at}</span>
+          </span>
+          <span className="col-span-1">
+            {isOnline && stats ? (
+              <>
+                <span className="mr-1">{t("node.uptime")}</span>
+                <span>{formatUptime(stats.uptime)}</span>
+              </>
+            ) : (
+              t("node.offline")
+            )}
           </span>
         </div>
       </CardContent>

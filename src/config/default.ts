@@ -38,6 +38,7 @@ export interface ConfigOptions {
   isShowValueUnderProgressBar: boolean; // 是否在流量进度条下方显示数值
   selectTrafficProgressStyle: "circular" | "linear"; // 流量进度条样式
   enableListItemProgressBar: boolean; // 是否启用列表视图进度条
+  customTexts: string; // 自定义UI文本
 }
 
 // 默认配置值
@@ -82,8 +83,8 @@ export const DEFAULT_CONFIG: ConfigOptions = {
   isShowValueUnderProgressBar: false,
   selectTrafficProgressStyle: "linear",
   enableListItemProgressBar: true,
+  customTexts: "",
 };
-
 // 定义颜色类型
 export type ColorType =
   | "ruby"

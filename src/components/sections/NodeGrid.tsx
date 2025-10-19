@@ -18,6 +18,7 @@ import { useAppConfig } from "@/config";
 import { useState, useEffect } from "react";
 import Instance from "@/pages/instance/Instance";
 import PingChart from "@/pages/instance/PingChart";
+import { useLocale } from "@/config/hooks";
 
 interface NodeDetailModalProps {
   node: NodeData;
@@ -39,6 +40,7 @@ const NodeDetailModal = ({ node, onClose }: NodeDetailModalProps) => {
   };
 
   const { pingChartTimeInPreview } = useAppConfig();
+  const { t } = useLocale();
 
   return (
     <div
@@ -52,7 +54,9 @@ const NodeDetailModal = ({ node, onClose }: NodeDetailModalProps) => {
         }`}
         onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-2 h-full">
-          <h2 className="text-xl font-bold">{node.name} Details</h2>
+          <h2 className="text-xl font-bold">
+            {t("node.details", { name: node.name })}
+          </h2>
           <button onClick={handleClose}>
             <X className="h-6 w-6" />
           </button>
@@ -132,6 +136,7 @@ export const NodeGrid = ({
     trafficPercentage,
   } = useNodeCommons(node);
   const { isShowHWBarInCard, isShowValueUnderProgressBar } = useAppConfig();
+  const { t } = useLocale();
 
   return (
     <Card
@@ -168,7 +173,9 @@ export const NodeGrid = ({
           <div className="flex items-center justify-around whitespace-nowrap">
             <div className="flex items-center gap-1">
               <CpuIcon className="size-4 text-blue-600 flex-shrink-0" />
-              <span>{node.cpu_cores} Cores</span>
+              <span>
+                {node.cpu_cores} {t("node.cores")}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <MemoryStickIcon className="size-4 text-green-600 flex-shrink-0" />
@@ -182,7 +189,7 @@ export const NodeGrid = ({
         )}
         <div className={`${isShowValueUnderProgressBar ? "mb-1" : ""}`}>
           <div className="flex items-center justify-between">
-            <span>CPU</span>
+            <span>{t("node.cpu")}</span>
             <div className="w-3/4 flex items-center gap-2">
               <ProgressBar value={cpuUsage} />
               <span className="w-12 text-right">{cpuUsage.toFixed(0)}%</span>
@@ -190,13 +197,15 @@ export const NodeGrid = ({
           </div>
           {isShowValueUnderProgressBar && (
             <div className="flex text-xs items-center justify-between text-secondary-foreground">
-              <span>{node.cpu_cores} Cores</span>
+              <span>
+                {node.cpu_cores} {t("node.cores")}
+              </span>
             </div>
           )}
         </div>
         <div className={`${isShowValueUnderProgressBar ? "mb-1" : ""}`}>
           <div className="flex items-center justify-between">
-            <span>内存</span>
+            <span>{t("node.mem")}</span>
             <div className="w-3/4 flex items-center gap-2">
               <ProgressBar value={memUsage} />
               <span className="w-12 text-right">{memUsage.toFixed(0)}%</span>
@@ -205,16 +214,20 @@ export const NodeGrid = ({
           {isShowValueUnderProgressBar && (
             <div className="flex text-xs items-center justify-between text-secondary-foreground">
               <span>
-                {node.mem_total > 0 ? `${formatBytes(node.mem_total)}` : "N/A"}
+                {node.mem_total > 0
+                  ? `${formatBytes(node.mem_total)}`
+                  : t("node.notAvailable")}
               </span>
-              <span>{stats ? `${formatBytes(stats.ram)}` : "N/A"}</span>
+              <span>
+                {stats ? `${formatBytes(stats.ram)}` : t("node.notAvailable")}
+              </span>
             </div>
           )}
         </div>
         {enableSwap && (
           <div className={`${isShowValueUnderProgressBar ? "mb-1" : ""}`}>
             <div className="flex items-center justify-between">
-              <span>SWAP</span>
+              <span>{t("node.swap")}</span>
               <div className="w-3/4 flex items-center gap-2">
                 <ProgressBar value={swapUsage} />
                 {node.swap_total > 0 ? (
@@ -222,7 +235,7 @@ export const NodeGrid = ({
                     {swapUsage.toFixed(0)}%
                   </span>
                 ) : (
-                  <span className="w-12 text-right">OFF</span>
+                  <span className="w-12 text-right">{t("node.off")}</span>
                 )}
               </div>
             </div>
@@ -231,16 +244,20 @@ export const NodeGrid = ({
                 <span>
                   {node.swap_total > 0
                     ? `${formatBytes(node.swap_total)}`
-                    : "未启用"}
+                    : t("node.notEnabled")}
                 </span>
-                <span>{stats ? `${formatBytes(stats.swap)}` : "N/A"}</span>
+                <span>
+                  {stats
+                    ? `${formatBytes(stats.swap)}`
+                    : t("node.notAvailable")}
+                </span>
               </div>
             )}
           </div>
         )}
         <div className={`${isShowValueUnderProgressBar ? "mb-1" : ""}`}>
           <div className="flex items-center justify-between">
-            <span>硬盘</span>
+            <span>{t("node.disk")}</span>
             <div className="w-3/4 flex items-center gap-2">
               <ProgressBar value={diskUsage} />
               <span className="w-12 text-right">{diskUsage.toFixed(0)}%</span>
@@ -251,22 +268,24 @@ export const NodeGrid = ({
               <span>
                 {node.disk_total > 0
                   ? `${formatBytes(node.disk_total)}`
-                  : "N/A"}
+                  : t("node.notAvailable")}
               </span>
-              <span>{stats ? `${formatBytes(stats.disk)}` : "N/A"}</span>
+              <span>
+                {stats ? `${formatBytes(stats.disk)}` : t("node.notAvailable")}
+              </span>
             </div>
           )}
         </div>
         {selectTrafficProgressStyle === "linear" && stats && (
           <div className="mb-1">
             <div className="flex items-center justify-between">
-              <span>流量</span>
+              <span>{t("node.traffic")}</span>
               <div className="w-3/4 flex items-center gap-2">
                 <ProgressBar value={trafficPercentage} />
                 <span className="w-12 text-right">
                   {node.traffic_limit !== 0
                     ? `${trafficPercentage.toFixed(0)}%`
-                    : "OFF"}
+                    : t("node.off")}
                 </span>
               </div>
             </div>
@@ -279,27 +298,35 @@ export const NodeGrid = ({
               </span>
               <span>
                 {stats
-                  ? `↑ ${formatBytes(stats.net_total_up)} ↓ ${formatBytes(
+                  ? `${t("node.uploadPrefix")} ${formatBytes(
+                      stats.net_total_up
+                    )} ${t("node.downloadPrefix")} ${formatBytes(
                       stats.net_total_down
                     )}`
-                  : "N/A"}
+                  : t("node.notAvailable")}
               </span>
             </div>
           </div>
         )}
         <div className="border-t border-(--accent-4)/50 my-2"></div>
         <div className="flex justify-between text-xs">
-          <span>网络：</span>
+          <span>{t("node.network")}</span>
           <div>
-            <span>↑ {stats ? formatBytes(stats.net_out, true) : "N/A"}</span>
+            <span>
+              {t("node.uploadPrefix")}{" "}
+              {stats
+                ? formatBytes(stats.net_out, true)
+                : t("node.notAvailable")}
+            </span>
             <span className="ml-2">
-              ↓ {stats ? formatBytes(stats.net_in, true) : "N/A"}
+              {t("node.downloadPrefix")}{" "}
+              {stats ? formatBytes(stats.net_in, true) : t("node.notAvailable")}
             </span>
           </div>
         </div>
         {selectTrafficProgressStyle === "circular" && stats && (
           <div className="flex items-center justify-between text-xs">
-            <span className="w-1/5">流量</span>
+            <span className="w-1/5">{t("node.traffic")}</span>
             <div className="flex items-center justify-between w-4/5">
               <div className="flex items-center w-1/4">
                 {node.traffic_limit !== 0 && (
@@ -315,10 +342,16 @@ export const NodeGrid = ({
               <div className="w-3/4 text-right">
                 <div>
                   <span>
-                    ↑ {stats ? formatBytes(stats.net_total_up) : "N/A"}
+                    {t("node.uploadPrefix")}{" "}
+                    {stats
+                      ? formatBytes(stats.net_total_up)
+                      : t("node.notAvailable")}
                   </span>
                   <span className="ml-2">
-                    ↓ {stats ? formatBytes(stats.net_total_down) : "N/A"}
+                    {t("node.downloadPrefix")}{" "}
+                    {stats
+                      ? formatBytes(stats.net_total_down)
+                      : t("node.notAvailable")}
                   </span>
                 </div>
                 {node.traffic_limit !== 0 && isOnline && stats && (
@@ -334,19 +367,25 @@ export const NodeGrid = ({
           </div>
         )}
         <div className="flex justify-between text-xs">
-          <span>负载</span>
+          <span>{t("node.load")}</span>
           <span>{load}</span>
         </div>
         <div className="flex justify-between text-xs">
           <div className="flex justify-start w-full">
-            <span>到期：{expired_at}</span>
+            <span className="mr-1">{t("node.expiredAt")}</span>
+            <span>{expired_at}</span>
           </div>
           <div className="border-l border-(--accent-4)/50 mx-2"></div>
           <div className="flex justify-end w-full">
             <span>
-              {isOnline && stats
-                ? `在线：${formatUptime(stats.uptime)}`
-                : "离线"}
+              {isOnline && stats ? (
+                <>
+                  <span className="mr-1">{t("node.uptime")}</span>
+                  <span>{formatUptime(stats.uptime)}</span>
+                </>
+              ) : (
+                t("node.offline")
+              )}
             </span>
           </div>
         </div>

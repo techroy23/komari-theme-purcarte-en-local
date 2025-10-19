@@ -6,13 +6,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useLocale } from "@/config/hooks";
+
 export default function Private() {
+  const { t } = useLocale();
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       <Card className="w-(--main-width) max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">站点已设为私有</CardTitle>
-          <CardDescription>登录后才能获取数据</CardDescription>
+          <CardTitle className="text-2xl font-bold">
+            {t("privatePage.title")}
+          </CardTitle>
+          <CardDescription>{t("privatePage.description")}</CardDescription>
         </CardHeader>
         <CardFooter>
           <a
@@ -20,7 +25,7 @@ export default function Private() {
             target="_blank"
             rel="noopener noreferrer"
             className="w-full">
-            <Button className="w-full">前往登录</Button>
+            <Button className="w-full">{t("privatePage.goToLogin")}</Button>
           </a>
         </CardFooter>
       </Card>

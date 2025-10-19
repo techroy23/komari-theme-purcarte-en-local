@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Layers } from "lucide-react";
 import { cn } from "@/utils";
 import type { StatsBarProps } from "./types";
+import { useLocale } from "@/config/hooks";
 
 export const GroupSelector = memo(
   ({
@@ -18,6 +19,7 @@ export const GroupSelector = memo(
     selectedGroup,
     onSelectGroup,
   }: Pick<StatsBarProps, "groups" | "selectedGroup" | "onSelectGroup">) => {
+    const { t } = useLocale();
     if (!groups?.length || !onSelectGroup) return null;
 
     return (
@@ -32,7 +34,7 @@ export const GroupSelector = memo(
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
-          <DropdownMenuLabel>选择分组</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("group.selectTitle")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {groups.map((group) => (
             <DropdownMenuItem

@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import Instance from "@/pages/instance/Instance";
 import PingChart from "@/pages/instance/PingChart";
 import { useAppConfig } from "@/config";
+import { useLocale } from "@/config/hooks";
 
 interface NodeTableProps {
   nodes: NodeData[];
@@ -30,20 +31,21 @@ export const NodeTable = ({
   enableListItemProgressBar,
   selectTrafficProgressStyle,
 }: NodeTableProps) => {
+  const { t } = useLocale();
   const gridCols = enableSwap ? "grid-cols-9" : "grid-cols-8";
 
   return (
     <div className="space-y-1">
       <div
         className={`text-primary font-bold grid ${gridCols} text-center shadow-sm shadow-(color:--accent-4)/50 gap-4 p-2 items-center rounded-lg bg-card transition-colors duration-200`}>
-        <div className="col-span-2 text-left pl-8">节点名称</div>
-        <div className="col-span-1">CPU</div>
-        <div className="col-span-1">内存</div>
-        {enableSwap && <div className="col-span-1">SWAP</div>}
-        <div className="col-span-1">硬盘</div>
-        <div className="col-span-1">网络</div>
-        <div className="col-span-1">流量</div>
-        <div className="col-span-1">负载</div>
+        <div className="col-span-2">{t("node.name")}</div>
+        <div className="col-span-1">{t("node.cpu")}</div>
+        <div className="col-span-1">{t("node.mem")}</div>
+        {enableSwap && <div className="col-span-1">{t("node.swap")}</div>}
+        <div className="col-span-1">{t("node.disk")}</div>
+        <div className="col-span-1">{t("node.network")}</div>
+        <div className="col-span-1">{t("node.traffic")}</div>
+        <div className="col-span-1">{t("node.load")}</div>
       </div>
       {nodes.map((node) => (
         <NodeTableRow
@@ -94,6 +96,7 @@ const NodeTableRow = ({
   } = useNodeCommons(node);
   const gridCols = enableSwap ? "grid-cols-9" : "grid-cols-8";
   const { pingChartTimeInPreview } = useAppConfig();
+  const { t } = useLocale();
 
   return (
     <>
@@ -114,6 +117,7 @@ const NodeTableRow = ({
           <div className="ml-2 w-[85%] space-y-1">
             <Link
               to={`/instance/${node.uuid}`}
+              onClick={(e) => e.stopPropagation()}
               className="hover:underline hover:text-(--accent-11)">
               <div className="text-base font-bold">{node.name}</div>
             </Link>
@@ -122,7 +126,7 @@ const NodeTableRow = ({
               <span>
                 {isOnline && stats
                   ? `${expired_at} | ${formatUptime(stats.uptime)}`
-                  : "离线"}
+                  : t("node.offline")}
               </span>
             </div>
           </div>
@@ -130,16 +134,22 @@ const NodeTableRow = ({
         <div className="col-span-1 flex items-center text-left">
           <CpuIcon className="inline-block size-5 flex-shrink-0 text-blue-600" />
           <div className="ml-1 w-full items-center justify-center">
-            <div>{node.cpu_cores} Cores</div>
+            <div>
+              {node.cpu_cores} {t("node.cores")}
+            </div>
             {enableListItemProgressBar ? (
               <div className="flex items-center gap-1">
                 <ProgressBar value={cpuUsage} h="h-2" />
                 <span className="w-10 text-right text-xs">
-                  {isOnline ? `${cpuUsage.toFixed(0)}%` : "N/A"}
+                  {isOnline
+                    ? `${cpuUsage.toFixed(0)}%`
+                    : t("node.notAvailable")}
                 </span>
               </div>
             ) : (
-              <div>{isOnline ? `${cpuUsage.toFixed(0)}%` : "N/A"}</div>
+              <div>
+                {isOnline ? `${cpuUsage.toFixed(0)}%` : t("node.notAvailable")}
+              </div>
             )}
           </div>
         </div>
@@ -151,11 +161,15 @@ const NodeTableRow = ({
               <div className="flex items-center gap-1">
                 <ProgressBar value={memUsage} h="h-2" />
                 <span className="w-10 text-right text-xs">
-                  {isOnline ? `${memUsage.toFixed(0)}%` : "N/A"}
+                  {isOnline
+                    ? `${memUsage.toFixed(0)}%`
+                    : t("node.notAvailable")}
                 </span>
               </div>
             ) : (
-              <div>{isOnline ? `${memUsage.toFixed(0)}%` : "N/A"}</div>
+              <div>
+                {isOnline ? `${memUsage.toFixed(0)}%` : t("node.notAvailable")}
+              </div>
             )}
           </div>
         </div>
@@ -169,15 +183,23 @@ const NodeTableRow = ({
                   <div className="flex items-center gap-1">
                     <ProgressBar value={swapUsage} h="h-2" />
                     <span className="w-10 text-right text-xs">
-                      {isOnline ? `${swapUsage.toFixed(0)}%` : "N/A"}
+                      {isOnline
+                        ? `${swapUsage.toFixed(0)}%`
+                        : t("node.notAvailable")}
                     </span>
                   </div>
                 ) : (
-                  <div>{isOnline ? `${swapUsage.toFixed(0)}%` : "N/A"}</div>
+                  <div>
+                    {isOnline
+                      ? `${swapUsage.toFixed(0)}%`
+                      : t("node.notAvailable")}
+                  </div>
                 )}
               </div>
             ) : (
-              <div className="ml-1 w-full item-center justify-center">OFF</div>
+              <div className="ml-1 w-full item-center justify-center">
+                {t("node.off")}
+              </div>
             )}
           </div>
         )}
@@ -189,24 +211,44 @@ const NodeTableRow = ({
               <div className="flex items-center gap-1">
                 <ProgressBar value={diskUsage} h="h-2" />
                 <span className="w-10 text-right text-xs">
-                  {isOnline ? `${diskUsage.toFixed(0)}%` : "N/A"}
+                  {isOnline
+                    ? `${diskUsage.toFixed(0)}%`
+                    : t("node.notAvailable")}
                 </span>
               </div>
             ) : (
-              <div>{isOnline ? `${diskUsage.toFixed(0)}%` : "N/A"}</div>
+              <div>
+                {isOnline ? `${diskUsage.toFixed(0)}%` : t("node.notAvailable")}
+              </div>
             )}
           </div>
         </div>
         <div className="col-span-1 text-left">
-          <div>↑ {stats ? formatBytes(stats.net_out, true) : "N/A"}</div>
-          <div>↓ {stats ? formatBytes(stats.net_in, true) : "N/A"}</div>
+          <div>
+            {t("node.uploadPrefix")}{" "}
+            {stats ? formatBytes(stats.net_out, true) : t("node.notAvailable")}
+          </div>
+          <div>
+            {t("node.downloadPrefix")}{" "}
+            {stats ? formatBytes(stats.net_in, true) : t("node.notAvailable")}
+          </div>
         </div>
         <div className="col-span-1 text-left">
           {selectTrafficProgressStyle === "linear" && isOnline && stats ? (
             <div className="flex flex-col">
               <div>
-                <div>↑ {stats ? formatBytes(stats.net_total_up) : "N/A"}</div>
-                <div>↓ {stats ? formatBytes(stats.net_total_down) : "N/A"}</div>
+                <div>
+                  {t("node.uploadPrefix")}{" "}
+                  {stats
+                    ? formatBytes(stats.net_total_up)
+                    : t("node.notAvailable")}
+                </div>
+                <div>
+                  {t("node.downloadPrefix")}{" "}
+                  {stats
+                    ? formatBytes(stats.net_total_down)
+                    : t("node.notAvailable")}
+                </div>
               </div>
               {node.traffic_limit !== 0 && isOnline && stats && (
                 <>
@@ -231,9 +273,17 @@ const NodeTableRow = ({
             <div className="flex items-center justify-between">
               <div>
                 <div>
-                  <div>↑ {stats ? formatBytes(stats.net_total_up) : "N/A"}</div>
                   <div>
-                    ↓ {stats ? formatBytes(stats.net_total_down) : "N/A"}
+                    {t("node.uploadPrefix")}{" "}
+                    {stats
+                      ? formatBytes(stats.net_total_up)
+                      : t("node.notAvailable")}
+                  </div>
+                  <div>
+                    {t("node.downloadPrefix")}{" "}
+                    {stats
+                      ? formatBytes(stats.net_total_down)
+                      : t("node.notAvailable")}
                   </div>
                 </div>
                 {node.traffic_limit !== 0 && isOnline && stats && (

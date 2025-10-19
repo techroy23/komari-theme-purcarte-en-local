@@ -307,6 +307,17 @@
                 "type": "number",
                 "default": 0,
                 "help": "设置延迟图表的最大渲染点数来优化图表渲染，0 表示不限制，推荐值为 2000 或更小的值"
+            },
+            {
+                "name": "UI 自定义",
+                "type": "title"
+            },
+            {
+                "key": "customTexts",
+                "name": "自定义 UI 文本（实验性，不推荐手动填写任何东西）",
+                "type": "string",
+                "default": "",
+                "help": "使用 key:value,key2:value2 的格式自定义UI文本，value 使用 URL 编码以避免特殊符号。推荐使用管理员登录后的编辑功能而不是手动填写此项，以避免格式错误导致的问题"
             }
         ]
     }
