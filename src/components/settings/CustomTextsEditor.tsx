@@ -7,6 +7,7 @@ import {
 } from "@/utils/localeUtils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils";
 
 interface CustomTextsEditorProps {
   value: string;
@@ -70,7 +71,10 @@ const CustomTextsEditor = ({
                   type="text"
                   value={editingTexts[key] ?? flatDefaultTexts[key]}
                   onChange={(e) => handleTextChange(key, e.target.value)}
-                  className={editingTexts[key] ? "border-yellow-500" : ""}
+                  className={cn(
+                    "theme-card-style",
+                    editingTexts[key] ? "border-yellow-500" : ""
+                  )}
                 />
               </div>
             ))}
