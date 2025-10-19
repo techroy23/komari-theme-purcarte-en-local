@@ -54,9 +54,20 @@
 
 ## ⚙️ 主题配置
 
+#### PurCarte v1.2.1 及以上版本
+
+<img width="80%" src="./public/examples/PurCarte-Theme-Config-New.png" alt="PurCarte Theme Config">
+
+#### 通用主题配置方法
+
 <img width="80%" src="./public/examples/PurCarte-Theme-Config.png" alt="PurCarte Theme Config">
 
-本主题支持通过 Komari 后台进行详细配置，所有可用选项如下：
+
+<br>
+
+> [!NOTE]
+>
+> 本主题支持通过 Komari 后台或前端进行详细配置，所有可用选项如下
 
 #### 样式调整
 

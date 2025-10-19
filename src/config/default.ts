@@ -43,7 +43,7 @@ export interface ConfigOptions {
 
 // 默认配置值
 export const DEFAULT_CONFIG: ConfigOptions = {
-  mainWidth: 90,
+  mainWidth: 85,
   backgroundImage: "/assets/Moonlit-Scenery.webp",
   backgroundImageMobile: "",
   enableVideoBackground: false,
@@ -146,3 +146,9 @@ export type AppearanceType = "light" | "dark" | "system";
 export const allAppearance: AppearanceType[] = ["light", "dark", "system"];
 
 export type ViewModeType = "grid" | "table" | "compact";
+
+export type SiteStatus =
+  | "public"
+  | "private-unauthenticated"
+  | "private-authenticated"
+  | "authenticated";

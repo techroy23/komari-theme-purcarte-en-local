@@ -10,6 +10,7 @@ import type {
 } from "@/types/node";
 import type { RpcNodeStatus, RpcNodeStatusMap } from "@/types/rpc";
 import { convertNodeStatsToRpcNodeStatus } from "@/utils/converters";
+import type { SiteStatus } from "@/config/default";
 
 class ApiService {
   private baseUrl: string;
@@ -223,14 +224,16 @@ class ApiService {
 
   // 检查站点状态
   async checkSiteStatus(): Promise<{
-    status: "public" | "private-unauthenticated" | "private-authenticated";
+    status: SiteStatus;
     publicInfo: PublicInfo | null;
   }> {
     const publicInfoResponse = await this.getPublicSettings();
+    const meResponse = await this.getUserInfo();
+    const isLoggedIn = meResponse?.logged_in || false;
+
     if (publicInfoResponse) {
       if (publicInfoResponse.private_site) {
-        const meResponse = await this.getUserInfo();
-        if (meResponse && meResponse.logged_in) {
+        if (isLoggedIn) {
           return {
             status: "private-authenticated",
             publicInfo: publicInfoResponse,
@@ -240,10 +243,43 @@ class ApiService {
           status: "private-unauthenticated",
           publicInfo: publicInfoResponse,
         };
+      } else {
+        if (isLoggedIn) {
+          return { status: "authenticated", publicInfo: publicInfoResponse };
+        }
+        return { status: "public", publicInfo: publicInfoResponse };
       }
-      return { status: "public", publicInfo: publicInfoResponse };
     }
     return { status: "private-unauthenticated", publicInfo: null };
+  }
+
+  async saveThemeSettings(
+    theme: string,
+    settings: Partial<any>
+  ): Promise<ApiResponse<any>> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/admin/theme/settings?theme=${theme}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(settings),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to save theme settings:", error);
+      return {
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown error",
+        data: null,
+      };
+    }
   }
 }
 

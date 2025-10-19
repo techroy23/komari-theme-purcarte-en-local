@@ -21,6 +21,9 @@ import Footer from "@/components/sections/Footer";
 import Loading from "./components/loading";
 import type { StatsBarProps } from "./components/sections/StatsBar";
 import { useNodeListCommons } from "@/hooks/useNodeCommons";
+import SettingsPanel from "./components/settings/SettingsPanel";
+import { useIsMobile } from "./hooks/useMobile";
+import type { SiteStatus } from "./config/default";
 const HomePage = lazy(() => import("@/pages/Home"));
 const InstancePage = lazy(() => import("@/pages/instance"));
 const NotFoundPage = lazy(() => import("@/pages/NotFound"));
@@ -33,9 +36,11 @@ const homeScrollState = {
 const AppRoutes = ({
   searchTerm,
   setSearchTerm,
+  setIsSettingsOpen,
 }: {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  setIsSettingsOpen: (isOpen: boolean) => void;
 }) => {
   const location = useLocation();
   const {
@@ -95,6 +100,7 @@ const AppRoutes = ({
       <Header
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        setIsSettingsOpen={setIsSettingsOpen}
         {...statsBarProps}
       />
       <div className="flex-1 min-h-0">
@@ -152,9 +158,25 @@ const AppRoutes = ({
 };
 
 export const AppContent = () => {
-  const { siteStatus } = useAppConfig();
+  const { siteStatus, mainWidth } = useAppConfig();
   const { appearance, color } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (isSettingsOpen && !isMobile) {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `calc(${mainWidth}vw - 20rem)`
+      );
+    } else {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${mainWidth}vw`
+      );
+    }
+  }, [isSettingsOpen, isMobile, mainWidth]);
 
   return (
     <Theme
@@ -163,20 +185,38 @@ export const AppContent = () => {
       scaling="110%"
       style={{ backgroundColor: "transparent" }}>
       <DynamicContent>
-        <div className="flex flex-col text-sm h-dvh">
-          {siteStatus === "private-unauthenticated" ? (
-            <>
-              <Header isPrivate={true} />
-              <div className="flex-1 min-h-0">
-                <Suspense fallback={<Loading />}>
-                  <PrivatePage />
-                </Suspense>
-              </div>
-            </>
-          ) : (
-            <AppRoutes searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          )}
-          <Footer />
+        <div
+          className={`grid h-dvh transition-all duration-300 ${
+            isSettingsOpen && !isMobile
+              ? "grid-cols-[1fr_auto]"
+              : "grid-cols-[1fr]"
+          } overflow-hidden`}>
+          <div className="flex flex-col text-sm flex-1 overflow-hidden">
+            {siteStatus === "private-unauthenticated" ? (
+              <>
+                <Header
+                  isPrivate={true}
+                  setIsSettingsOpen={setIsSettingsOpen}
+                />
+                <div className="flex-1 min-h-0">
+                  <Suspense fallback={<Loading />}>
+                    <PrivatePage />
+                  </Suspense>
+                </div>
+              </>
+            ) : (
+              <AppRoutes
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                setIsSettingsOpen={setIsSettingsOpen}
+              />
+            )}
+            <Footer />
+          </div>
+          <SettingsPanel
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+          />
         </div>
       </DynamicContent>
     </Theme>
@@ -187,7 +227,7 @@ const AppProviders = ({
   siteStatus,
   children,
 }: {
-  siteStatus: "public" | "private-unauthenticated" | "private-authenticated";
+  siteStatus: SiteStatus;
   children: React.ReactNode;
 }) => {
   if (siteStatus === "private-unauthenticated") {

@@ -1,13 +1,15 @@
 import { createContext } from "react";
-import type { ConfigOptions } from "./default";
+import type { ConfigOptions, SiteStatus } from "./default";
 import { DEFAULT_CONFIG } from "./default";
 import type { PublicInfo } from "@/types/node.d";
 import { defaultTexts } from "./locales";
 
 export interface ConfigContextType extends ConfigOptions {
   publicSettings: PublicInfo | null;
-  siteStatus: "public" | "private-unauthenticated" | "private-authenticated";
+  siteStatus: SiteStatus;
   texts: typeof defaultTexts;
+  previewConfig: Partial<ConfigOptions> | null;
+  updatePreviewConfig: (newConfig: Partial<ConfigOptions>) => void;
 }
 
 // 创建配置上下文
@@ -16,4 +18,6 @@ export const ConfigContext = createContext<ConfigContextType>({
   publicSettings: null,
   siteStatus: "public",
   texts: defaultTexts,
+  previewConfig: null,
+  updatePreviewConfig: () => {},
 });

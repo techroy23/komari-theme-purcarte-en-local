@@ -53,6 +53,12 @@ export default defineConfig(({ mode }) => {
           ws: true,
           secure: false,
         },
+        "/themes": {
+          target: env.VITE_API_TARGET || "http://localhost:3000",
+          changeOrigin: true,
+          ws: true,
+          secure: false,
+        },
       },
     },
   };

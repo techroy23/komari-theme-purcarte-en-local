@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useState, useMemo } from "react";
 import type { PublicInfo } from "@/types/node.d";
 import { ConfigContext } from "./ConfigContext";
-import { DEFAULT_CONFIG, type ConfigOptions } from "./default";
+import { DEFAULT_CONFIG, type ConfigOptions, type SiteStatus } from "./default";
 import { apiService, getWsService } from "@/services/api";
 import Loading from "@/components/loading";
 import { defaultTexts, otherTexts } from "./locales";
@@ -18,9 +18,9 @@ interface ConfigProviderProps {
 export function ConfigProvider({ children }: ConfigProviderProps) {
   const [publicSettings, setPublicSettings] = useState<PublicInfo | null>(null);
   const [config, setConfig] = useState<ConfigOptions | null>(null);
-  const [siteStatus, setSiteStatus] = useState<
-    "public" | "private-unauthenticated" | "private-authenticated"
-  >("public");
+  const [siteStatus, setSiteStatus] = useState<SiteStatus>("public");
+  const [previewConfig, setPreviewConfig] =
+    useState<Partial<ConfigOptions> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -81,11 +81,26 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   }, []);
 
   const texts = useMemo(() => {
-    const baseTexts = config?.customTexts
-      ? mergeTexts(defaultTexts, config.customTexts)
+    const activeConfig = previewConfig
+      ? { ...config, ...previewConfig }
+      : config;
+    const baseTexts = activeConfig?.customTexts
+      ? mergeTexts(defaultTexts, activeConfig.customTexts)
       : defaultTexts;
     return deepMerge(baseTexts, otherTexts);
-  }, [config?.customTexts]);
+  }, [config, previewConfig]);
+
+  const updatePreviewConfig = (newConfig: Partial<ConfigOptions>) => {
+    setPreviewConfig(newConfig);
+  };
+
+  const activeConfig = useMemo(
+    () =>
+      previewConfig
+        ? { ...(config || DEFAULT_CONFIG), ...previewConfig }
+        : config || DEFAULT_CONFIG,
+    [config, previewConfig]
+  );
 
   if (!isLoaded || !config) {
     return (
@@ -95,7 +110,15 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
 
   return (
     <ConfigContext.Provider
-      value={{ ...config, publicSettings, siteStatus, texts }}>
+      value={{
+        ...activeConfig,
+        titleText: config?.titleText || DEFAULT_CONFIG.titleText,
+        publicSettings,
+        siteStatus,
+        texts,
+        previewConfig,
+        updatePreviewConfig,
+      }}>
       {children}
     </ConfigContext.Provider>
   );
