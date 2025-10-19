@@ -30,13 +30,14 @@ import { useLocale } from "@/config/hooks";
 import { StatsBar } from "../sections/StatsBar";
 import type { StatsBarProps } from "../sections/StatsBar";
 
-interface HeaderProps extends StatsBarProps {
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
+interface HeaderProps extends Partial<StatsBarProps> {
+  isPrivate?: boolean;
+  searchTerm?: string;
+  setSearchTerm?: (term: string) => void;
 }
 
 export const Header = (props: HeaderProps) => {
-  const { searchTerm, setSearchTerm } = props;
+  const { isPrivate, searchTerm, setSearchTerm } = props;
   const { rawAppearance, setAppearance, viewMode, setViewMode } = useTheme();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
@@ -70,52 +71,48 @@ export const Header = (props: HeaderProps) => {
             {enableTitle && <span>{titleText}</span>}
           </a>
         </div>
-        {!isInstancePage &&
-          isShowStatsInHeader &&
-          !isMobile &&
-          props.displayOptions && (
-            <div className="flex-1 flex justify-center">
-              <StatsBar
-                isShowStatsInHeader={isShowStatsInHeader}
-                {...(props as StatsBarProps)}
-              />
-            </div>
-          )}
+        {!isInstancePage && isShowStatsInHeader && !isMobile && !isPrivate && (
+          <div className="flex-1 flex justify-center">
+            <StatsBar {...(props as Required<StatsBarProps>)} />
+          </div>
+        )}
         <div className="flex items-center space-x-2">
           {!isInstancePage && (
             <>
               {isMobile ? (
                 <>
-                  {enableSearchButton && (
-                    <DropdownMenu modal={false}>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="relative group">
-                          <Search className="size-5 text-primary" />
-                          {searchTerm && (
-                            <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-(--accent-indicator) transform -translate-x-1/2"></span>
-                          )}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className="purcarte-blur border-(--accent-4)/50 rounded-xl w-[90vw] translate-x-[5vw] mt-[.5rem] max-w-screen-2xl">
-                        <div className="p-2">
-                          <Input
-                            type="search"
-                            placeholder={t("search.placeholder")}
-                            className="w-full"
-                            value={searchTerm}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => setSearchTerm(e.target.value)}
-                          />
-                        </div>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
+                  {enableSearchButton &&
+                    searchTerm != undefined &&
+                    setSearchTerm && (
+                      <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="relative group">
+                            <Search className="size-5 text-primary" />
+                            {searchTerm && (
+                              <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-(--accent-indicator) transform -translate-x-1/2"></span>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="purcarte-blur border-(--accent-4)/50 rounded-xl w-[90vw] translate-x-[5vw] mt-[.5rem] max-w-screen-2xl">
+                          <div className="p-2">
+                            <Input
+                              type="search"
+                              placeholder={t("search.placeholder")}
+                              className="w-full"
+                              value={searchTerm}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) => setSearchTerm(e.target.value)}
+                            />
+                          </div>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -203,34 +200,38 @@ export const Header = (props: HeaderProps) => {
                 </>
               ) : (
                 <>
-                  <div
-                    className={`flex items-center transition-all duration-300 ease-in-out overflow-hidden transform ${
-                      isSearchOpen ? "w-48 opacity-100" : "w-0 opacity-0"
-                    }`}>
-                    <Input
-                      type="search"
-                      placeholder={t("search.placeholder")}
-                      className={`transition-all duration-300 ease-in-out ${
-                        !isSearchOpen && "invisible"
-                      }`}
-                      value={searchTerm}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setSearchTerm(e.target.value)
-                      }
-                    />
-                  </div>
-                  {enableSearchButton && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative group"
-                      onClick={() => setIsSearchOpen(!isSearchOpen)}>
-                      <Search className="size-5 text-primary" />
-                      {searchTerm && (
-                        <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-(--accent-indicator) transform -translate-x-1/2"></span>
-                      )}
-                    </Button>
-                  )}
+                  {enableSearchButton &&
+                    searchTerm != undefined &&
+                    setSearchTerm && (
+                      <>
+                        <div
+                          className={`flex items-center transition-all duration-300 ease-in-out overflow-hidden transform ${
+                            isSearchOpen ? "w-48 opacity-100" : "w-0 opacity-0"
+                          }`}>
+                          <Input
+                            type="search"
+                            placeholder={t("search.placeholder")}
+                            className={`transition-all duration-300 ease-in-out ${
+                              !isSearchOpen && "invisible"
+                            }`}
+                            value={searchTerm}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="relative group"
+                          onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                          <Search className="size-5 text-primary" />
+                          {searchTerm && (
+                            <span className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-(--accent-indicator) transform -translate-x-1/2"></span>
+                          )}
+                        </Button>
+                      </>
+                    )}
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
