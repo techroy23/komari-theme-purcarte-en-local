@@ -6,7 +6,7 @@ import { useNodeData } from "@/contexts/NodeDataContext";
 import { useLiveData } from "@/contexts/LiveDataContext";
 import type { NodeDataContextType } from "@/contexts/NodeDataContext";
 import type { LiveDataContextType } from "@/contexts/LiveDataContext";
-import { useLocale } from "@/config/hooks";
+import { useLocale, useAppConfig } from "@/config/hooks";
 
 type SortKey = "trafficUp" | "trafficDown" | "speedUp" | "speedDown" | null;
 type SortOrder = "asc" | "desc";
@@ -19,6 +19,7 @@ export const useNodeListCommons = (searchTerm: string) => {
   } = useNodeData() as NodeDataContextType;
   const { liveData } = useLiveData() as LiveDataContextType;
   const { t } = useLocale();
+  const { isOfflineNodesBehind } = useAppConfig();
   const [selectedGroup, setSelectedGroup] = useState(t("group.all"));
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -58,29 +59,49 @@ export const useNodeListCommons = (searchTerm: string) => {
         node.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-    if (sortKey) {
-      const sortMap: { [key in SortKey & string]: keyof RpcNodeStatus } = {
-        trafficUp: "net_total_up",
-        trafficDown: "net_total_down",
-        speedUp: "net_out",
-        speedDown: "net_in",
-      };
-      const statsKey = sortMap[sortKey];
-
+    if (isOfflineNodesBehind || sortKey) {
       nodes.sort((a, b) => {
-        const aValue = Number(a.stats?.[statsKey] || 0);
-        const bValue = Number(b.stats?.[statsKey] || 0);
-
-        if (sortOrder === "asc") {
-          return aValue - bValue;
-        } else {
-          return bValue - aValue;
+        if (isOfflineNodesBehind) {
+          const aOnline = a.stats?.online || false;
+          const bOnline = b.stats?.online || false;
+          if (aOnline !== bOnline) {
+            return aOnline ? -1 : 1;
+          }
         }
+
+        if (sortKey) {
+          const sortMap: { [key in SortKey & string]: keyof RpcNodeStatus } = {
+            trafficUp: "net_total_up",
+            trafficDown: "net_total_down",
+            speedUp: "net_out",
+            speedDown: "net_in",
+          };
+          const statsKey = sortMap[sortKey];
+
+          const aValue = Number(a.stats?.[statsKey] || 0);
+          const bValue = Number(b.stats?.[statsKey] || 0);
+
+          if (sortOrder === "asc") {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        }
+
+        return 0;
       });
     }
 
     return nodes;
-  }, [combinedNodes, selectedGroup, searchTerm, sortKey, sortOrder, t]);
+  }, [
+    combinedNodes,
+    selectedGroup,
+    searchTerm,
+    sortKey,
+    sortOrder,
+    t,
+    isOfflineNodesBehind,
+  ]);
 
   const stats = useMemo(() => {
     return {

@@ -219,6 +219,13 @@
                 "help": "启用后在统计栏添加排序控制下拉菜单选项，分别对流量上下行和网速上下行进行升降排序，仅在启用统计栏时有效"
             },
             {
+                "key": "isOfflineNodesBehind",
+                "name": "启用离线节点置后显示",
+                "type": "switch",
+                "default": false,
+                "help": "启用后离线节点将被自动置后显示"
+            },
+            {
                 "key": "enableGroupedBar",
                 "name": "启用分组栏",
                 "type": "switch",

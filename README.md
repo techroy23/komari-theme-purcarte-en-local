@@ -215,21 +215,26 @@
   - **默认值:** `false`
   - **说明:** 启用后在统计栏添加排序控制下拉菜单选项，分别对流量上下行和网速上下行进行升降排序，仅在启用统计栏时有效
 
+- **启用离线节点置后显示** (`isOfflineNodesBehind`)
+ - **类型:** `switch`
+ - **默认值:** `false`
+ - **说明:** 启用后离线节点将被自动置后显示
+
 - **启用分组栏** (`enableGroupedBar`)
   - **类型:** `switch`
   - **默认值:** `true`
   - **说明:** 启用后默认显示分组栏
-
-- **启用 SWAP 显示** (`enableSwap`)
-  - **类型:** `switch`
-  - **默认值:** `true`
-  - **说明:** 启用后默认显示 SWAP 信息
 
 - **移动端默认展示视图** (`selectMobileDefaultView`)
   - **类型:** `select`
   - **可选项:** `grid`, `table`, `compact`
   - **默认值:** `grid`
   - **说明:** 设置移动端默认展示视图为网格、表格或紧凑型
+
+- **启用 SWAP 显示** (`enableSwap`)
+  - **类型:** `switch`
+  - **默认值:** `true`
+  - **说明:** 启用后默认显示 SWAP 信息
 
 - **预览详情的延迟图表时间范围** (`pingChartTimeInPreview`)
   - **类型:** `number`

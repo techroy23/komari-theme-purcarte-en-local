@@ -26,6 +26,7 @@ export interface ConfigOptions {
   mergeGroupsWithStats: boolean; // 是否在统计栏中合并分组
   enableStatsBar: boolean; // 是否启用统计栏
   enableSortControl: boolean; // 是否启用排序控制
+  isOfflineNodesBehind: boolean; // 是否启用离线节点置后显示
   enableGroupedBar: boolean; // 是否启用分组栏
   selectMobileDefaultView: ViewModeType; // 移动端默认展示视图
   enableSwap: boolean; // 是否启用SWAP显示
@@ -71,6 +72,7 @@ export const DEFAULT_CONFIG: ConfigOptions = {
   mergeGroupsWithStats: false,
   enableStatsBar: true,
   enableSortControl: false,
+  isOfflineNodesBehind: false,
   enableGroupedBar: true,
   selectMobileDefaultView: "grid",
   enableSwap: true,

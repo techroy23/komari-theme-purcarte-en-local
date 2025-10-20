@@ -7,7 +7,7 @@ export const defaultTexts = {
     cores: "Cores",
     cpu: "CPU",
     mem: "内存",
-    swap: "交换",
+    swap: "SWAP",
     disk: "硬盘",
     traffic: "流量",
     network: "网络",
