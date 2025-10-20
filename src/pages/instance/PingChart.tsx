@@ -19,9 +19,10 @@ import { Label } from "@radix-ui/react-label";
 import type { NodeData } from "@/types/node";
 import Loading from "@/components/loading";
 import { usePingChart } from "@/hooks/usePingChart";
-import fillMissingTimePoints, {
+import {
   cutPeakValues,
   calculateTaskStats,
+  interpolateNullsLinear,
 } from "@/utils/RecordHelper";
 import { useAppConfig } from "@/config";
 import { CustomTooltip } from "@/components/ui/tooltip";
@@ -71,70 +72,100 @@ const PingChart = memo(({ node, hours }: PingChartProps) => {
 
   const chartMargin = { top: 8, right: 16, bottom: 8, left: 16 };
 
-  const chartData = useMemo(() => {
-    if (!pingHistory || !pingHistory.records || !pingHistory.tasks) return [];
+  const midData = useMemo(() => {
+    const data = pingHistory?.records || [];
+    const tasks = pingHistory?.tasks || [];
+    if (!data.length || !tasks.length) return [];
 
-    const grouped: Record<string, any> = {};
-    const timeKeys: number[] = [];
+    const taskIntervals = tasks
+      .map((t) => t.interval)
+      .filter((v): v is number => typeof v === "number" && v > 0);
+    const fallbackIntervalSec = taskIntervals.length
+      ? Math.min(...taskIntervals)
+      : 60;
 
-    for (const rec of pingHistory.records) {
-      const t = new Date(rec.time).getTime();
-      let foundKey = null;
-      // 查找是否可以合并到现有时间点
-      for (const key of timeKeys) {
-        if (Math.abs(key - t) <= 5000) {
-          foundKey = key;
+    const toleranceMs = Math.min(
+      6000,
+      Math.max(800, Math.floor(fallbackIntervalSec * 1000 * 0.25))
+    );
+    const grouped: Record<number, any> = {};
+    const anchors: number[] = [];
+    for (const rec of data) {
+      const ts = new Date(rec.time).getTime();
+      let anchor: number | null = null;
+      for (const a of anchors) {
+        if (Math.abs(a - ts) <= toleranceMs) {
+          anchor = a;
           break;
         }
       }
-      const useKey = foundKey !== null ? foundKey : t;
-      if (!grouped[useKey]) {
-        grouped[useKey] = { time: useKey };
-        // 如果是新的时间点，则添加到 timeKeys 中
-        if (foundKey === null) {
-          timeKeys.push(useKey);
+      const use = anchor ?? ts;
+      if (!grouped[use]) {
+        grouped[use] = { time: new Date(use).toISOString() };
+        if (anchor === null) anchors.push(use);
+      }
+      grouped[use][rec.task_id] = rec.value < 0 ? null : rec.value;
+    }
+    const merged = Object.values(grouped).sort(
+      (a: any, b: any) =>
+        new Date(a.time).getTime() - new Date(b.time).getTime()
+    );
+
+    if (!merged.length) return [];
+
+    const lastTs = new Date(
+      (merged as any[])[(merged as any[]).length - 1].time
+    ).getTime();
+    const fromTs = lastTs - hours * 3600_000;
+    let startIdx = 0;
+    for (let i = 0; i < (merged as any[]).length; i++) {
+      const ts = new Date((merged as any[])[i].time).getTime();
+      if (ts >= fromTs) {
+        startIdx = Math.max(0, i - 1);
+        break;
+      }
+    }
+    const clipped = (merged as any[]).slice(startIdx);
+    return clipped;
+  }, [pingHistory, hours]);
+
+  const chartData = useMemo(() => {
+    let full = midData;
+    const tasks = pingHistory?.tasks || [];
+    if (!tasks.length || !full.length) return [];
+
+    if (cutPeak) {
+      const taskKeys = tasks.map((task) => String(task.id));
+      full = cutPeakValues(full, taskKeys);
+    }
+
+    const keys = tasks.map((t) => String(t.id));
+
+    // 暂存-1导致的null值
+    const preservedNulls = new Set<string>();
+    full.forEach((d, i) => {
+      keys.forEach((key) => {
+        if (d[key] === null) {
+          preservedNulls.add(`${i}-${key}`);
         }
-      }
-      grouped[useKey][rec.task_id] = rec.value === -1 ? null : rec.value;
-    }
+      });
+    });
 
-    let full = Object.values(grouped).sort((a: any, b: any) => a.time - b.time);
+    full = interpolateNullsLinear(full, keys, {
+      maxGapMultiplier: 6,
+      minCapMs: 2 * 60_000,
+      maxCapMs: 30 * 60_000,
+    });
 
-    if (hours !== 0) {
-      const task = pingHistory.tasks;
-      let interval = task[0]?.interval || 60; // base interval in seconds
-      const maxGap = interval * 1.2;
+    // 恢复-1导致的null值
+    full.forEach((d, i) => {
+      keys.forEach((key) => {
+        if (preservedNulls.has(`${i}-${key}`)) {
+          d[key] = null;
+        }
+      });
+    });
 
-      // 使用固定的 hours 值进行降采样计算，不依赖 timeRange
-      const selectedDurationHours = hours;
-      const totalDurationSeconds = hours * 60 * 60;
-
-      // 根据所选视图调整间隔，进行更积极的降采样
-      if (selectedDurationHours > 30 * 24) {
-        // > 30 天
-        interval = 60 * 60; // 1 hour
-      } else if (selectedDurationHours > 7 * 24) {
-        // > 7 天
-        interval = 15 * 60; // 15 minutes
-      } else if (selectedDurationHours > 24) {
-        // > 1 天
-        interval = 5 * 60; // 5 minutes
-      }
-
-      full = fillMissingTimePoints(
-        full,
-        interval,
-        totalDurationSeconds,
-        maxGap
-      );
-
-      full = full.map((d: any) => ({
-        ...d,
-        time: new Date(d.time).getTime(),
-      }));
-    }
-
-    // 添加渲染硬限制以防止崩溃，即使在间隔调整后也是如此
     if (full.length > pingChartMaxPoints && pingChartMaxPoints > 0) {
       const samplingFactor = Math.ceil(full.length / pingChartMaxPoints);
       const sampledData = [];
@@ -144,13 +175,11 @@ const PingChart = memo(({ node, hours }: PingChartProps) => {
       full = sampledData;
     }
 
-    if (cutPeak && pingHistory.tasks.length > 0) {
-      const taskKeys = pingHistory.tasks.map((task) => String(task.id));
-      full = cutPeakValues(full, taskKeys);
-    }
-
-    return full;
-  }, [pingHistory, hours, pingChartMaxPoints, cutPeak]);
+    return full.map((d: any) => ({
+      ...d,
+      time: new Date(d.time).getTime(),
+    }));
+  }, [midData, cutPeak, pingHistory?.tasks, pingChartMaxPoints]);
 
   const handleTaskVisibilityToggle = (taskId: number) => {
     setVisiblePingTasks((prev) =>
