@@ -32,7 +32,7 @@ export interface ConfigOptions {
   defaultSelectedGroup: string; // 默认选择展示分组
   selectMobileDefaultView: ViewModeType; // 移动端默认展示视图
   enableSwap: boolean; // 是否启用SWAP显示
-  pingChartTimeInPreview: number; // 预览详情的延迟图表时间范围，单位为小时
+  pingChartTimeInPreview: number; // 预览详情的延迟图表时间范围，单位为 hour
   enableInstanceDetail: boolean; // 是否启用实例详情
   enablePingChart: boolean; // 是否启用延迟图表
   enableConnectBreaks: boolean; // 是否启用连接断点

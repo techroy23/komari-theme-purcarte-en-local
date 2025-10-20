@@ -30,7 +30,7 @@ const InstancePage = () => {
     "idle" | "fading-out" | "fading-in"
   >("fading-in");
   const [loadHours, setLoadHours] = useState<number>(0);
-  const [pingHours, setPingHours] = useState<number>(1); // 默认1小时
+  const [pingHours, setPingHours] = useState<number>(1); // 默认1 hour
   const { enableInstanceDetail, enablePingChart, publicSettings } =
     useAppConfig();
   const isMobile = useIsMobile();

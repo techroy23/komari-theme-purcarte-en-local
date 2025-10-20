@@ -34,7 +34,7 @@ export const generateColor = (taskName: string, sortedTasks: PingTask[]) => {
 /**
  * 格式化图表X轴的标签
  * @param value - 时间戳
- * @param hours - 当前选择的时间范围（小时）
+ * @param hours - 当前选择的时间范围（ hour）
  * @returns 格式化后的时间字符串
  */
 export const lableFormatter = (value: any, hours: number) => {

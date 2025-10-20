@@ -42,11 +42,11 @@ export const formatUptime = (seconds: number) => {
     uptimeString += `${days}天`;
   }
   if (hrs > 0) {
-    uptimeString += `${hrs}小时`;
+    uptimeString += `${hrs} hour`;
   }
   if (mns > 0 && days === 0) {
     // Only show minutes if uptime is less than a day
-    uptimeString += `${mns}分钟`;
+    uptimeString += `${mns} minutes`;
   }
   if (uptimeString === "") {
     return "刚刚";

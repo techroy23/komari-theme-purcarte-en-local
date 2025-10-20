@@ -367,7 +367,7 @@ export function calculateLossRate(chartData: any[], taskId: number): number {
  * 避免渲染过多的数据点
  *
  * @param data 原始数据数组
- * @param retentionHours 数据保留时间（小时）
+ * @param retentionHours 数据保留时间（ hour）
  * @param isMiniChart 是否是迷你图表（采样更激进）
  * @returns 采样后的数据数组
  */
@@ -380,32 +380,32 @@ export function sampleDataByRetention(
 
   let sampleInterval: number;
 
-  // 根据保留时间确定采样间隔（分钟）
+  // 根据保留时间确定采样间隔（ minutes）
   if (isMiniChart) {
     // MiniChart 使用更激进的采样，减少点数
     if (retentionHours <= 72) {
-      sampleInterval = 5; // 最多5分钟一个点
+      sampleInterval = 5; // 最多5 minutes一个点
     } else if (retentionHours <= 168) {
-      sampleInterval = 30; // 最多30分钟一个点
+      sampleInterval = 30; // 最多30 minutes一个点
     } else if (retentionHours <= 720) {
-      sampleInterval = 60; // 最多60分钟一个点
+      sampleInterval = 60; // 最多60 minutes一个点
     } else if (retentionHours <= 2160) {
-      sampleInterval = 120; // 最多120分钟一个点
+      sampleInterval = 120; // 最多120 minutes一个点
     } else {
-      sampleInterval = 180; // 最多180分钟一个点
+      sampleInterval = 180; // 最多180 minutes一个点
     }
   } else {
     // 主图表的采样间隔
     if (retentionHours <= 72) {
-      sampleInterval = 1; // 最多1分钟一个点
+      sampleInterval = 1; // 最多1 minutes一个点
     } else if (retentionHours <= 168) {
-      sampleInterval = 15; // 最多15分钟一个点
+      sampleInterval = 15; // 最多15 minutes一个点
     } else if (retentionHours <= 720) {
-      sampleInterval = 30; // 最多30分钟一个点
+      sampleInterval = 30; // 最多30 minutes一个点
     } else if (retentionHours <= 2160) {
-      sampleInterval = 60; // 最多60分钟一个点
+      sampleInterval = 60; // 最多60 minutes一个点
     } else {
-      sampleInterval = 90; // 最多90分钟一个点
+      sampleInterval = 90; // 最多90 minutes一个点
     }
   }
 
