@@ -1,5 +1,6 @@
 // 配置类型定义
 export interface ConfigOptions {
+  isShowConfigEditButtonInLogined: boolean; // 是否在登录时显示配置编辑按钮
   mainWidth: number; // 主内容宽度百分比
   backgroundImage: string; // 桌面端背景图片URL
   backgroundImageMobile: string; // 移动端背景图片URL
@@ -45,6 +46,7 @@ export interface ConfigOptions {
 
 // 默认配置值
 export const DEFAULT_CONFIG: ConfigOptions = {
+  isShowConfigEditButtonInLogined: true,
   mainWidth: 85,
   backgroundImage: "/assets/Moonlit-Scenery.webp",
   backgroundImageMobile: "",

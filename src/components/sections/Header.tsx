@@ -53,6 +53,7 @@ export const Header = (props: HeaderProps) => {
     enableAdminButton,
     isShowStatsInHeader,
     siteStatus,
+    isShowConfigEditButtonInLogined,
   } = useAppConfig();
   const isMobile = useIsMobile();
   const { t } = useLocale();
@@ -423,12 +424,13 @@ export const Header = (props: HeaderProps) => {
                 )}
               </>
             )}
-            {(siteStatus === "authenticated" ||
-              siteStatus === "private-authenticated") && (
-              <EditButton
-                onClick={() => setIsSettingsOpen && setIsSettingsOpen(true)}
-              />
-            )}
+            {isShowConfigEditButtonInLogined &&
+              (siteStatus === "authenticated" ||
+                siteStatus === "private-authenticated") && (
+                <EditButton
+                  onClick={() => setIsSettingsOpen && setIsSettingsOpen(true)}
+                />
+              )}
           </div>
         </div>
       </header>

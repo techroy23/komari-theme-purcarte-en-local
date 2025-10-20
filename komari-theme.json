@@ -10,6 +10,17 @@
         "type": "managed",
         "data": [
             {
+                "name": "前端管理开关",
+                "type": "title"
+            },
+            {
+                "key": "isShowConfigEditButtonInLogined",
+                "name": "是否在登录时显示配置编辑按钮",
+                "type": "switch",
+                "default": true,
+                "help": "启用后将在登录时在标题栏最右侧显示配置编辑按钮，方便管理员进行主题配置"
+            },
+            {
                 "name": "样式调整",
                 "type": "title"
             },
