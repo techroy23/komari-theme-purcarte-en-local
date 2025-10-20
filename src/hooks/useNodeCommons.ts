@@ -19,8 +19,10 @@ export const useNodeListCommons = (searchTerm: string) => {
   } = useNodeData() as NodeDataContextType;
   const { liveData } = useLiveData() as LiveDataContextType;
   const { t } = useLocale();
-  const { isOfflineNodesBehind } = useAppConfig();
-  const [selectedGroup, setSelectedGroup] = useState(t("group.all"));
+  const { isOfflineNodesBehind, defaultSelectedGroup } = useAppConfig();
+  const [selectedGroup, setSelectedGroup] = useState(
+    defaultSelectedGroup || t("group.all")
+  );
   const [sortKey, setSortKey] = useState<SortKey>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 

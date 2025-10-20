@@ -28,6 +28,7 @@ export interface ConfigOptions {
   enableSortControl: boolean; // 是否启用排序控制
   isOfflineNodesBehind: boolean; // 是否启用离线节点置后显示
   enableGroupedBar: boolean; // 是否启用分组栏
+  defaultSelectedGroup: string; // 默认选择展示分组
   selectMobileDefaultView: ViewModeType; // 移动端默认展示视图
   enableSwap: boolean; // 是否启用SWAP显示
   pingChartTimeInPreview: number; // 预览详情的延迟图表时间范围，单位为小时
@@ -74,6 +75,7 @@ export const DEFAULT_CONFIG: ConfigOptions = {
   enableSortControl: false,
   isOfflineNodesBehind: false,
   enableGroupedBar: true,
+  defaultSelectedGroup: "",
   selectMobileDefaultView: "grid",
   enableSwap: true,
   pingChartTimeInPreview: 1,
