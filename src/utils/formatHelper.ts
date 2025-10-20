@@ -39,17 +39,17 @@ export const formatUptime = (seconds: number) => {
 
   let uptimeString = "";
   if (days > 0) {
-    uptimeString += `${days}天`;
+    uptimeString += `${days} days `;
   }
   if (hrs > 0) {
-    uptimeString += `${hrs} hour`;
+    uptimeString += `${hrs} hours `;
   }
   if (mns > 0 && days === 0) {
     // Only show minutes if uptime is less than a day
-    uptimeString += `${mns} minutes`;
+    uptimeString += `${mns} minutes `;
   }
   if (uptimeString === "") {
-    return "刚刚";
+    return " just now ";
   }
 
   return uptimeString;
@@ -64,23 +64,23 @@ export const formatPrice = (
   if (price === 0) return "";
   if (!currency || !billingCycle) return "N/A";
 
-  let cycleStr = `${billingCycle}天`;
+  let cycleStr = `${billingCycle} days `;
   if (billingCycle < 0) {
     return `${currency}${price.toFixed(2)}`;
   } else if (billingCycle === 30 || billingCycle === 31) {
-    cycleStr = "月";
+    cycleStr = " month ";
   } else if (billingCycle >= 89 && billingCycle <= 92) {
-    cycleStr = "季";
+    cycleStr = " quarter ";
   } else if (billingCycle >= 180 && billingCycle <= 183) {
-    cycleStr = "半年";
+    cycleStr = " half a year ";
   } else if (billingCycle >= 364 && billingCycle <= 366) {
-    cycleStr = "年";
+    cycleStr = " year ";
   } else if (billingCycle >= 730 && billingCycle <= 732) {
-    cycleStr = "两年";
+    cycleStr = " two years ";
   } else if (billingCycle >= 1095 && billingCycle <= 1097) {
-    cycleStr = "三年";
+    cycleStr = " three years ";
   } else if (billingCycle >= 1825 && billingCycle <= 1827) {
-    cycleStr = "五年";
+    cycleStr = " five years ";
   }
 
   return `${currency}${price.toFixed(2)}/${cycleStr}`;
@@ -90,20 +90,20 @@ export const formatTrafficLimit = (
   limit?: number,
   type?: "sum" | "max" | "min" | "up" | "down"
 ) => {
-  if (!limit) return "未设置";
+  if (!limit) return " not set ";
 
   const limitText = formatBytes(limit);
 
   const typeText =
     {
-      sum: "总和",
-      max: "最大值",
-      min: "最小值",
-      up: "上传",
-      down: "下载",
+      sum: " sum ",
+      max: " max ",
+      min: " min ",
+      up: " upload ",
+      down: " download ",
     }[type || "max"] || "";
 
-  return `总 ${limitText} (${typeText})`;
+  return `total ${limitText} (${typeText})`;
 };
 
 export const getProgressBarClass = (percentage: number) => {
