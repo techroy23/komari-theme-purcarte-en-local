@@ -3,8 +3,8 @@ name: Build and Release Assets
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
 
 jobs:
   build-and-release:
@@ -33,22 +33,41 @@ jobs:
       - name: Build project
         run: yarn build
 
+      - name: Auto-increment version tag
+        id: bump
+        run: |
+          git fetch --tags
+
+          # Get latest tag or default to v0.0.0
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+
+          # Strip 'v' prefix
+          VERSION=${LATEST_TAG#v}
+
+          # Split into X Y Z
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          # Increment patch
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          NEW_TAG="v$NEW_VERSION"
+
+          echo "New version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+          # Create and push new tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+
       - name: Update theme configuration
         run: |
-          # Extract version from tag (remove 'v' prefix)
-          VERSION=${GITHUB_REF_NAME#v}
-
-          # Validate semantic version format (X.Y.Z)
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Error: Version '$VERSION' is not a valid semantic version (X.Y.Z format)"
-            echo "Expected format: X.Y.Z (e.g., 1.2.3)"
-            exit 1
-          fi
-
-          echo "Valid semantic version detected: $VERSION"
+          VERSION=${NEW_VERSION}
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
-          # Update komari-theme.json with new version
           jq --arg version "$VERSION" \
               '.version = $version' \
               komari-theme.json > komari-theme-updated.json
@@ -68,45 +87,35 @@ jobs:
 
       - name: Create theme package
         run: |
-          # Create a temporary directory for the package
           mkdir -p theme-package
-
-          # Copy required files
           cp preview.png theme-package/
           cp komari-theme.json theme-package/
           cp -r dist/ theme-package/
-
-          # Create zip file with version and commit hash
           ZIP_NAME="komari-theme-purcarte.zip"
-
           cd theme-package
           zip -r ../${ZIP_NAME} .
           cd ..
-
           echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
           echo "Created package: ${ZIP_NAME}"
           ls -la ${ZIP_NAME}
 
       - name: Generate Changelog
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-        id: changelog
         run: |
           git fetch --prune
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 `git rev-list --tags --skip=1 --max-count=1` 2>/dev/null || git rev-list --max-parents=0 HEAD)
           echo "Previous tag: $PREVIOUS_TAG"
-          CHANGELOG=$(git log $PREVIOUS_TAG..${{ github.ref_name }} --pretty=format:"* %s (%h)")
+          CHANGELOG=$(git log $PREVIOUS_TAG..${NEW_TAG} --pretty=format:"* %s (%h)")
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "$CHANGELOG" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ env.NEW_TAG }}
+          name: Release ${{ env.NEW_TAG }}
           body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: false
